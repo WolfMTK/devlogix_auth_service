@@ -1,0 +1,15 @@
+version: "3"
+
+services:
+  postgres:
+    image: postgres:16
+    env_file: env/.env
+    restart: always
+    ports:
+      - "1000:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      - ./multiple-databases.sh:/docker-entrypoint-initdb.d/multiple-databases.sh
+
+volumes:
+  pg_data:

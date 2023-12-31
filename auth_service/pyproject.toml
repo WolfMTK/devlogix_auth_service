@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "auth-service"
+version = "0.1.0"
+description = ""
+authors = ["AngryWolf"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "^0.104.1"
+sqlalchemy = "^2.0.23"
+pydantic = {extras = ["email"], version = "^2.5.1"}
+alembic = "^1.12.1"
+uvicorn = "^0.24.0.post1"
+passlib = {extras = ["bcrypt"], version = "^1.7.4"}
+pyjwt = "^2.8.0"
+httpx = "^0.26.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
