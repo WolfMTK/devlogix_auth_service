@@ -4,7 +4,7 @@ from fastapi import APIRouter, HTTPException, status, Body, Depends, Response
 
 from src.application.services import UserService, TokenService
 from src.core import exceptions
-from src.core.dependencies import UOWDep
+from src.core.dependencies import UoWDep
 from src.core.oauth2 import get_current_active_user
 from src.core.swagger import (
     BODY_USER_CREATE_EXAMPLE,
@@ -13,6 +13,8 @@ from src.core.swagger import (
 from src.domain.models.users import User
 from src.domain.schemas.tokens import TokenGet
 from src.domain.schemas.users import UserCreate, UserGet, UserLogin
+
+# from src.infrastructure.db import unit_of_work
 
 router = APIRouter(prefix='/auth/jwt', tags=['auth'])
 
@@ -25,7 +27,7 @@ router = APIRouter(prefix='/auth/jwt', tags=['auth'])
     responses=RESPONSE_USER_CREATE_EXAMPLE
 )
 async def register_user(
-        uow: UOWDep,
+        uow: UoWDep,
         user: UserCreate = Body(..., example=BODY_USER_CREATE_EXAMPLE)
 ) -> User:
     """
@@ -43,11 +45,10 @@ async def register_user(
             detail=str(error)
         )
 
-
 @router.post('/login/',
              response_model=TokenGet)
-async def login(uow: UOWDep,
-                user: UserLogin):
+async def login(user: UserLogin,
+                uow: UoWDep):
     """
     Аутентификация пользователя.
 
@@ -67,17 +68,18 @@ async def login(uow: UOWDep,
 
 @router.post('/logout/')
 async def logout(
-        uow: UOWDep,
         current_user: Annotated[
             UserGet, Depends(get_current_active_user)
-        ]) -> Response:
+        ],
+        uow: UoWDep
+) -> Response:
     """Разлогирование пользователя."""
     await TokenService().delete_token(uow, current_user.id)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @router.get('/token-clear-users/', include_in_schema=False)
-async def clear_tokens_in_database(uow: UOWDep) -> None:
+async def clear_tokens_in_database(uow: UoWDep) -> None:
     """Очистка токенов с истекшим сроком действия."""
     await TokenService().clear_tokens(uow)
     raise HTTPException(status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
