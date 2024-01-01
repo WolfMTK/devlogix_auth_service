@@ -4,7 +4,7 @@ from jwt import PyJWTError
 from pydantic import ValidationError
 
 from src.application.services import UserService, TokenService
-from src.core.dependencies import UOWDep
+from src.core.dependencies import UoWDep
 from src.core.jwt import decode_token
 from src.domain.schemas.tokens import TokenData
 from src.domain.schemas.users import UserGet
@@ -12,7 +12,7 @@ from src.domain.schemas.users import UserGet
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl='token')
 
 
-async def get_current_user(uow: UOWDep,
+async def get_current_user(uow: UoWDep,
                            token: str = Depends(oauth2_scheme)) -> UserGet:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
