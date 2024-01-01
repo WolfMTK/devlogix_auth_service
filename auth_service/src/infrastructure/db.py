@@ -1,5 +1,4 @@
-from sqlalchemy.ext.asyncio import (create_async_engine,
-                                    async_sessionmaker)
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from sqlalchemy.orm import declarative_base, declared_attr
 
 from src.core import settings
