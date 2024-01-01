@@ -3,13 +3,13 @@ from fastapi.security import OAuth2PasswordBearer
 from jwt import PyJWTError
 from pydantic import ValidationError
 
-from app.application.services import UserService, TokenService
-from app.core.dependencies import UoWDep
-from app.core.jwt import decode_token
-from app.domain.schemas.tokens import TokenData
-from app.domain.schemas.users import UserGet
+from src.application.services import UserService, TokenService
+from src.core.dependencies import UoWDep
+from src.core.jwt import decode_token
+from src.domain.schemas.tokens import TokenData
+from src.domain.schemas.users import UserGet
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl='/auth/jwt/token/')
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl='token')
 
 
 async def get_current_user(uow: UoWDep,
