@@ -9,7 +9,7 @@ from src.core.jwt import decode_token
 from src.domain.schemas.tokens import TokenData
 from src.domain.schemas.users import UserGet
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl='token')
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl='/auth/jwt/token/')
 
 
 async def get_current_user(uow: UoWDep,
