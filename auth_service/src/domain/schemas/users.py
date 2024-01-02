@@ -1,6 +1,10 @@
 from pydantic import BaseModel, EmailStr, field_validator, Field, ConfigDict
-
-from src.core.constants import LENGTH_PASSWORD, LENGTH_USERNAME
+import re
+from src.core.constants import (
+    LENGTH_PASSWORD,
+    LENGTH_USERNAME,
+    PATTERN_PASSWORD,
+)
 
 
 class UserBase(BaseModel):
@@ -19,6 +23,15 @@ class UserCreate(BaseModel):
     def check_password(cls, password: str) -> str:
         if len(password) < LENGTH_PASSWORD:
             raise ValueError('Длина пароля меньше 8 символов!')
+        elif not re.match(PATTERN_PASSWORD, password):
+            raise ValueError(
+                'Пароль должен содержать: '
+                '- минимум одну цифру;'
+                '- по крайней мере один алфавит верхнего регистра;'
+                '- по крайней мере один алфавит нижнего регистра;'
+                '- по крайней мере один специальный символ, '
+                'который включает в себя !#$%&()*+,-./:;<=>?@[\]^_`{|}~.'
+            )
         return password
 
     @field_validator('username')
