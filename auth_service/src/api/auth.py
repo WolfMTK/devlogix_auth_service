@@ -2,6 +2,8 @@ from typing import Annotated
 
 from fastapi import APIRouter, HTTPException, status, Body, Depends, Response
 
+from fastapi.security import OAuth2PasswordRequestForm
+
 from src.application.services import UserService, TokenService
 from src.core import exceptions
 from src.core.dependencies import UoWDep
@@ -13,8 +15,6 @@ from src.core.swagger import (
 from src.domain.models.users import User
 from src.domain.schemas.tokens import TokenGet
 from src.domain.schemas.users import UserCreate, UserGet, UserLogin
-
-# from src.infrastructure.db import unit_of_work
 
 router = APIRouter(prefix='/auth/jwt', tags=['auth'])
 
@@ -34,8 +34,12 @@ async def register_user(
     Регистрация пользователя.
 
      - **username** - юзернейм
+
      - **email** - почта
+
      - **password** - пароль (длина пароля больше или равна 8 символам)
+
+     **username**, **email**, **password** являются обязательными.
     """
     try:
         return await UserService().register_user(uow, user)
@@ -47,14 +51,19 @@ async def register_user(
 
 @router.post('/login/',
              response_model=TokenGet)
-async def login(user: UserLogin,
-                uow: UoWDep):
+async def login(uow: UoWDep,
+                user: UserLogin = Body(...,
+                                       example=BODY_USER_CREATE_EXAMPLE)):
     """
     Аутентификация пользователя.
 
     **username** - юзернейм
+
     **email** - почта
+
     **password** - пароль
+
+    **username/email** и **password** являются обязательными.
     """
     try:
         return await TokenService().get_token(uow, user)
@@ -66,7 +75,24 @@ async def login(user: UserLogin,
         )
 
 
-@router.post('/logout/')
+# TODO: временная ручка, будет скрыта в будущем
+@router.post("/token/", response_model=TokenGet)
+async def login_for_access_token(
+        uow: UoWDep,
+        form_data: Annotated[OAuth2PasswordRequestForm, Depends()]
+):
+    user = UserLogin(username=form_data.username, password=form_data.password)
+    try:
+        return await TokenService().get_token(uow, user)
+    except exceptions.HTTPError401 as error:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=f'{error}',
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@router.post('/logout/', status_code=status.HTTP_204_NO_CONTENT)
 async def logout(
         current_user: Annotated[
             UserGet, Depends(get_current_active_user)
