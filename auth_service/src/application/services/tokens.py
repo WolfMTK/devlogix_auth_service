@@ -20,7 +20,7 @@ class TokenService:
                 user = await self._check_user_correct_data(uow, schema)
             except (AttributeError, InvalidDataError):
                 http_error.error_401_handler(
-                    'Некорректный юзернейм или пароль!')
+                    'Некорректный юзернейм/email или пароль!')
             token_time = timedelta(minutes=settings.time_access_token)
             access_token = self._create_access_token(user.username,
                                                      token_time)
@@ -88,7 +88,9 @@ class TokenService:
     async def _check_user_correct_data(self,
                                        uow: UoW,
                                        schema: UserLogin) -> User:
-        if schema.username:
+        if schema.username and schema.email:
+            raise InvalidDataError('Invalid data')
+        elif schema.username:
             user = await uow.users.find_one(username=schema.username)
         elif schema.email:
             user = await uow.users.find_one(email=schema.email)
