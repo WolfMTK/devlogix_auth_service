@@ -9,22 +9,22 @@ from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from sqlalchemy.orm import sessionmaker
 
 try:
-    from src.app import app
+    from app.app import app
 except (NameError, ImportError):
     raise AssertionError('Не обнаружен объект `app`.')
 
 try:
-    from src.infrastructure.db import Base
+    from app.infrastructure.db import Base
 except (NameError, ImportError):
     raise AssertionError('Не обнаружен объект `Base`')
 
 try:
-    from src.application.protocols.unit_of_work import UnitOfWork
+    from app.application.protocols.unit_of_work import UnitOfWork
 except (NameError, ImportError):
     raise AssertionError('Не обнаружен объект `UnitOfWork`.')
 
 try:
-    from src.core.dependencies import unit_of_work
+    from app.core.dependencies import unit_of_work
 except (NameError, ImportError):
     raise AssertionError('Не обнаружен объект `unit_of_work`.')
 
