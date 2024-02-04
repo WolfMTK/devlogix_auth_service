@@ -1,13 +1,12 @@
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jwt import PyJWTError
-from pydantic import ValidationError
 
 from auth.application.services import UserService
 from auth.core.jwt import decode_token
 from auth.domain.schemas import UserGet, TokenData
+from auth.application.services.exceptions import EmptyUserException
 from .dependencies import UoWDep
-from ..application.services.exceptions import EmptyUserException
 
 bearer_token = HTTPBearer(auto_error=False)
 
