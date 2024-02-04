@@ -2,7 +2,6 @@ from typing import Annotated
 
 from fastapi import APIRouter, status, Body, HTTPException, Depends, Response
 
-from .auth import get_current_active_user
 from auth.api.dependencies import UoWDep
 from auth.api.swagger import (RESPONSE_USER_GET_EXAMPLE,
                               BODY_USER_CREATE_EXAMPLE)
@@ -11,6 +10,7 @@ from auth.application.services.tokens import TokenService
 from auth.application.services.users import UserService
 from auth.domain.schemas import TokenGet
 from auth.domain.schemas.users import UserGet, UserCreate, UserLogin
+from .auth import get_current_active_user
 
 router = APIRouter(prefix='/auth/jwt', tags=['auth'])
 
@@ -71,8 +71,6 @@ async def login(uow: UoWDep,
             detail=f'{error}',
             headers={"WWW-Authenticate": "Bearer"},
         )
-
-
 
 
 @router.get('/me/',

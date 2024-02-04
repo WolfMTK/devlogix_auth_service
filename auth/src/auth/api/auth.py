@@ -1,7 +1,6 @@
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jwt import PyJWTError
-from pydantic import ValidationError
 
 from auth.application.services import UserService
 from auth.core.jwt import decode_token
