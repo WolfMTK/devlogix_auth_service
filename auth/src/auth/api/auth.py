@@ -5,8 +5,8 @@ from jwt import PyJWTError
 from auth.application.services import UserService
 from auth.core.jwt import decode_token
 from auth.domain.schemas import UserGet, TokenData
+from auth.application.services.exceptions import EmptyUserException
 from .dependencies import UoWDep
-from ..application.services.exceptions import EmptyUserException
 
 bearer_token = HTTPBearer(auto_error=False)
 

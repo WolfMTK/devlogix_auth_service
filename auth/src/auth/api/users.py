@@ -72,7 +72,6 @@ async def login(uow: UoWDep,
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-
 @router.get('/me/',
             response_model=UserGet,
             response_model_exclude_none=True,
