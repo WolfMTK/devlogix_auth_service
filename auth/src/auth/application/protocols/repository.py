@@ -4,7 +4,7 @@ from typing import TypeVar, Sequence, Any
 from sqlalchemy import insert, select, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.infrastructure.db import Base
+from auth.infrastructure.db import Base
 
 ModelType = TypeVar('ModelType', bound=Base)
 

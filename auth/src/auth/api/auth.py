@@ -1,30 +1,33 @@
 from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jwt import PyJWTError
 from pydantic import ValidationError
 
-from app.application.services import UserService, TokenService
-from app.core.dependencies import UoWDep
-from app.core.jwt import decode_token
-from app.domain.schemas.tokens import TokenData
-from app.domain.schemas.users import UserGet
+from auth.application.services import UserService
+from auth.core.jwt import decode_token
+from auth.domain.schemas import UserGet, TokenData
+from .dependencies import UoWDep
+from ..application.services.exceptions import EmptyUserException
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl='/auth/jwt/token/')
+bearer_token = HTTPBearer(auto_error=False)
 
 
-async def get_current_user(uow: UoWDep,
-                           token: str = Depends(oauth2_scheme)) -> UserGet:
+async def get_current_user(
+        uow: UoWDep,
+        auth: HTTPAuthorizationCredentials = Depends(bearer_token)
+) -> UserGet:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail='Could not validate credentials',
         headers={'WWW-Authenticate': 'Bearer'})
+    token = auth.credentials
     try:
-        if ((username := decode_token(token).get('sub')) is None or
-                not (await TokenService().check_token(uow, token))):
+        if ((username := decode_token(token).get('sub')) is None):
             raise credentials_exception
         token_data = TokenData(username=username)
+
         return await UserService().get_user(uow, token_data.username)
-    except (PyJWTError, AttributeError, ValidationError):
+    except (PyJWTError, AttributeError, EmptyUserException):
         raise credentials_exception
 
 

@@ -3,17 +3,12 @@ from typing import Type
 
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
-from app.application.repositories.tokens import (
-    AccessTokenRepository,
-    RefreshTokenRepository,
-)
-from app.application.repositories.users import UserRepository
+from auth.application.repositories import UserRepository, TokenRepository
 
 
 class UoW(ABC):
     users = Type[UserRepository]
-    access_token = Type[AccessTokenRepository]
-    refresh_token = Type[RefreshTokenRepository]
+    token = Type[TokenRepository]
 
     @abstractmethod
     async def __aenter__(self): ...
@@ -28,7 +23,7 @@ class UoW(ABC):
     async def rollback(self): ...
 
 
-class UnitOfWork:
+class UnitOfWork(UoW):
     def __init__(self, session_factory: async_sessionmaker) -> None:
         self.session_factory = session_factory
 
@@ -36,8 +31,7 @@ class UnitOfWork:
         self.session = self.session_factory()
 
         self.users = UserRepository(self.session)
-        self.access_token = AccessTokenRepository(self.session)
-        self.refresh_token = RefreshTokenRepository(self.session)
+        self.token = TokenRepository(self.session)
 
     async def __aexit__(self, *args):
         await self.rollback()
