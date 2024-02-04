@@ -1,6 +1,6 @@
 from pydantic import BaseModel, EmailStr, field_validator, Field, ConfigDict
 import re
-from src.core.constants import (
+from auth.core.constants import (
     LENGTH_PASSWORD,
     LENGTH_USERNAME,
     PATTERN_PASSWORD,

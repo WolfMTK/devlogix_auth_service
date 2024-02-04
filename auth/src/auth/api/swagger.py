@@ -4,7 +4,7 @@ BODY_USER_CREATE_EXAMPLE = {
     'password': 'UserAdmin12'
 }
 
-RESPONSE_USER_CREATE_EXAMPLE = {
+RESPONSE_USER_GET_EXAMPLE = {
     201: {
         'content': {'application/json':
             {

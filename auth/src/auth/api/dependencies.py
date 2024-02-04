@@ -2,8 +2,8 @@ from typing import Annotated
 
 from fastapi import Depends
 
-from app.application.protocols.unit_of_work import UnitOfWork, UoW
-from app.infrastructure.db import async_session_maker
+from auth.application.protocols.unit_of_work import UnitOfWork, UoW
+from auth.infrastructure.db import async_session_maker
 
 
 def unit_of_work() -> UnitOfWork:

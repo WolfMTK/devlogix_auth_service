@@ -1,9 +1,11 @@
+from datetime import datetime
+
 from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql.expression import true
 
-from app.domain.schemas.users import UserGet
-from app.infrastructure.db import Base
+from auth.domain.schemas.users import UserGet
+from auth.infrastructure.db import Base
 
 
 class User(Base):
@@ -19,14 +21,11 @@ class User(Base):
                                        nullable=False,
                                        index=True)
     password: Mapped[str] = mapped_column(nullable=False)
-    access_token: Mapped['AccessToken'] = relationship(
+    token: Mapped['Token'] = relationship(
         back_populates='user',
         lazy='selectin',
     )
-    refresh_token: Mapped['RefreshToken'] = relationship(
-        back_populates='user',
-        lazy='selectin',
-    )
+    created_at: Mapped[datetime] = mapped_column(default=datetime.now())
     is_active: Mapped[bool] = mapped_column(nullable=False,
                                             server_default=true())
 

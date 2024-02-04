@@ -1,30 +1,25 @@
 import asyncio
-from pathlib import Path
 from functools import partial
-from httpx import AsyncClient
+from pathlib import Path
+
 import pytest
-from mixer.backend.sqlalchemy import Mixer as _mixer
-from sqlalchemy import create_engine
+from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
-from sqlalchemy.orm import sessionmaker
 
 try:
-    from src.app import app
+    from auth.main import app
 except (NameError, ImportError):
     raise AssertionError('Не обнаружен объект `app`.')
-
 try:
-    from src.infrastructure.db import Base
+    from auth.infrastructure.db import Base
 except (NameError, ImportError):
     raise AssertionError('Не обнаружен объект `Base`')
-
 try:
-    from src.application.protocols.unit_of_work import UnitOfWork
+    from auth.application.protocols.unit_of_work import UnitOfWork
 except (NameError, ImportError):
     raise AssertionError('Не обнаружен объект `UnitOfWork`.')
-
 try:
-    from src.core.dependencies import unit_of_work
+    from auth.api.dependencies import unit_of_work
 except (NameError, ImportError):
     raise AssertionError('Не обнаружен объект `unit_of_work`.')
 
@@ -67,10 +62,3 @@ async def async_client():
     )
     async with AsyncClient(app=app, base_url='http://test') as client:
         yield client
-
-
-@pytest.fixture
-def mixer():
-    mixer_engine = create_engine(f'sqlite:///{str(TEST_DB)}')
-    session = sessionmaker(bind=mixer_engine)
-    return _mixer(session=session(), commit=True)
