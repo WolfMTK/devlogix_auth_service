@@ -52,14 +52,14 @@ class TokenService:
 
     async def _check_user_correct_data(self, uow: UoW, schema: UserLogin) -> User:
         if schema.username and schema.email:
-            raise InvalidDataException('Введите username или email!')
+            raise InvalidDataException('Введите username или email.')
 
         if schema.username:
             user = await uow.users.find_one(username=schema.username)
         elif schema.email:
             user = await uow.users.find_one(email=schema.email)
         else:
-            raise EmptyDataException('Отсутствует username или email!')
+            raise EmptyDataException('Отсутствует username или email.')
         if user and verify_password(schema.password, user.password):
             return user
-        raise InvalidPasswordException('Пароль или логин введен неверно!')
+        raise InvalidPasswordException('Пароль или логин введен неверно.')

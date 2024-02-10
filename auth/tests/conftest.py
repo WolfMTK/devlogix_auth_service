@@ -53,6 +53,7 @@ def event_loop():
     yield loop
     loop.close()
 
+pytest_plugins = ['tests.fixtures.functions']
 
 @pytest.fixture(scope='session')
 async def async_client():

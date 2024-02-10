@@ -10,7 +10,7 @@ class EmptyUserException(AuthException):
     """Empty user exception."""
 
     def __str__(self) -> str:
-        return 'Пользователь не найден!'
+        return 'Пользователь не найден.'
 
 
 class InvalidEmailException(AuthException):

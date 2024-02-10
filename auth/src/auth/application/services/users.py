@@ -12,11 +12,11 @@ class UserService:
         async with uow:
             if await self._check_username_exists(uow, user.username):
                 raise InvalidUsernameException(
-                    'Пользователь с таким юзернеймом уже существует!'
+                    'Пользователь с таким юзернеймом уже существует.'
                 )
             elif await self._check_email_exists(uow, user.email):
                 raise InvalidEmailException(
-                    'Пользователь с такой почтой уже существует!'
+                    'Пользователь с такой почтой уже существует.'
                 )
             user.password = get_password_hash(user.password)
             user = await uow.users.add_one(**user.model_dump())
