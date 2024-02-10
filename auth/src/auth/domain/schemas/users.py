@@ -52,3 +52,26 @@ class UserGet(UserBase):
     first_name: str | None = Field(None, description='Имя')
     last_name: str | None = Field(None, description='Фамилия')
     is_active: bool = Field(..., description='Статус пользователя')
+
+
+class UserUpdate(UserBase):
+    """Схема обновления пользователя."""
+    password: str | None = Field(None, description='Пароль')
+    first_name: str | None = Field(None, description='Имя')
+    last_name: str | None = Field(None, description='Фамилия')
+
+    @field_validator('password')
+    @classmethod
+    def check_password(cls, password: str) -> str:
+        """Проверка пароля."""
+        password_validate = PasswordValidate(password)
+        password_validate.validate()
+        return password
+
+    @field_validator('username')
+    @classmethod
+    def check_username(cls, username: str) -> str:
+        """Проверка юзернейма."""
+        username_validate = UsernameValidate(username)
+        username_validate.validate()
+        return username
