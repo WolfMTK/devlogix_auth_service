@@ -1,23 +1,19 @@
-from typing import Annotated
-
-from fastapi import APIRouter, status, Body, HTTPException, Depends, Response
+from fastapi import APIRouter, status, Body, HTTPException, Depends
 
 from auth.api.dependencies import UoWDep
 from auth.api.swagger import (RESPONSE_USER_CREATE_EXAMPLE,
                               BODY_USER_CREATE_EXAMPLE,
-                              RESPONSE_USER_GET_EXAMPLE,
-                              RESPONSE_LOGIN_EXAMPLE, RESPONSE_LOGOUT_EXAMPLE)
+                              RESPONSE_USER_GET_EXAMPLE)
 from auth.application.services import exceptions
-from auth.application.services.tokens import TokenService
 from auth.application.services.users import UserService
-from auth.domain.schemas import TokenGet
-from auth.domain.schemas.users import UserGet, UserCreate, UserLogin
+from auth.domain.schemas.users import UserGet, UserCreate
 from .auth import get_current_active_user
 
-router = APIRouter(prefix='/users/jwt', tags=['users'])
+router = APIRouter(prefix='/users', tags=['users'])
 
 
-@router.post('/register/',
+@router.post('/',
+             name='Регистраци пользователя',
              response_model=UserGet,
              response_model_exclude_none=True,
              status_code=status.HTTP_201_CREATED,
@@ -47,52 +43,10 @@ async def create_user(
         )
 
 
-@router.post('/login/',
-             response_model=TokenGet,
-             status_code=status.HTTP_200_OK,
-             responses=RESPONSE_LOGIN_EXAMPLE)
-async def login(uow: UoWDep,
-                user: UserLogin = Body(...,
-                                       example=BODY_USER_CREATE_EXAMPLE)):
-    """
-    Аутентификация пользователя.
-
-    **username** - юзернейм
-
-    **email** - почта
-
-    **password** - пароль
-
-    **username/email** и **password** являются обязательными.
-    """
-    try:
-        return await TokenService().get_token(uow, user)
-    except (exceptions.InvalidDataException,
-            exceptions.EmptyDataException,
-            exceptions.InvalidPasswordException) as error:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=f'{error}',
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-
 @router.get('/me/',
+            name='Данные о себе',
             response_model=UserGet,
             response_model_exclude_none=True,
             responses=RESPONSE_USER_GET_EXAMPLE)
 async def read_user_me(user: UserGet = Depends(get_current_active_user)):
     return user
-
-
-@router.post('/logout/',
-             status_code=status.HTTP_204_NO_CONTENT,
-             responses=RESPONSE_LOGOUT_EXAMPLE)
-async def logout(
-        current_user: Annotated[
-            UserGet, Depends(get_current_active_user)
-        ],
-        uow: UoWDep
-):
-    """Разлогирование пользователя."""
-    await TokenService().delete_token(uow, current_user.id)
-    return Response(status_code=status.HTTP_204_NO_CONTENT)
