@@ -22,7 +22,7 @@ RESPONSE_USER_CREATE_EXAMPLE = {
         }
     },
     400: {
-        'description': '',
+        'description': 'Ошибка запроса',
         'content': {
             'application/json': {
                 'examples': {
@@ -41,6 +41,7 @@ RESPONSE_USER_CREATE_EXAMPLE = {
         }
     },
     422: {
+        'description': 'Невалидные данные',
         'content': {
             'application/json': {
                 'examples': {
@@ -136,6 +137,7 @@ RESPONSE_USER_CREATE_EXAMPLE = {
 
 RESPONSE_LOGIN_EXAMPLE = {
     200: {
+        'description': 'Данные успешно получены',
         'content': {
             'application/json': {
                 'example': {
@@ -148,6 +150,7 @@ RESPONSE_LOGIN_EXAMPLE = {
         }
     },
     400: {
+        'description': 'Ошибка запроса',
         'content': {
             'application/json': {
                 'examples': {
@@ -176,6 +179,7 @@ RESPONSE_LOGIN_EXAMPLE = {
         }
     },
     422: {
+        'description': 'Невалидные данные',
         'content': {
             'application/json': {
                 'examples': {
