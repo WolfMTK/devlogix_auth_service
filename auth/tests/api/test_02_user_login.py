@@ -12,18 +12,18 @@ from .constants import INVALID_LENGTH
 ])
 async def test_01_login_user(async_client: AsyncClient,
                              json: dict[str, str]) -> None:
-    """Проверка аутентификации пользователя."""
-    response = await async_client.post('/users/jwt/login/',
+    """Проверка получения токенов."""
+    response = await async_client.post('/auth/token/login/',
                                        json=json)
     assert response.status_code == 200, (
-        'При аутентификации пользователя должен возвращаться статус-код 200.'
+        'При получении токенов должен возвращаться статус-код 200.'
     )
     data = response.json()
     keys = sorted(
         ['access_token', 'expires_in', 'refresh_token', 'token_type']
     )
     assert sorted(list(data.keys())) == keys, (
-        f'При аутентификации пользователя в ответе должны быть ключи {keys}'
+        f'При получении токенов в ответе должны быть ключи {keys}'
     )
 
 
@@ -44,19 +44,19 @@ async def test_02_invalid_email_login_user(
         json: dict[str, str],
         message_email: tuple[str, ...]
 ) -> None:
-    """Проверка аутентификации пользователя при невалидной почте."""
-    response = await async_client.post('/users/jwt/login/', json=json)
+    """Проверка получения токенов при невалидной почте."""
+    response = await async_client.post('/auth/token/login/', json=json)
     assert response.status_code == 422, (
-        'При некорректной аутентификации пользователя '
+        'При некорректном получении токенов '
         'должен возвращаться статус-код 422.'
     )
     data = response.json()
     assert list(data.keys()) == ['detail'], (
-        'При некорректной аутентификации пользователя '
+        'При некорректном получении токенов '
         'в ответе должен быть ключ `detail`.'
     )
     assert type(data['detail']) == list, (
-        'При некорректной аутентификации пользователя '
+        'При некорректном получении токенов '
         'в ответе должно быть значение списком.'
     )
     error_message = message_email + (
@@ -65,7 +65,7 @@ async def test_02_invalid_email_login_user(
     )
     for value in data['detail']:
         assert value['msg'] in error_message, (
-            'При некорректной аутентификации пользователя '
+            'При некорректном получении токенов '
             'в ответе должно быть указано описание ошибки.'
         )
 
@@ -88,19 +88,19 @@ async def test_03_invalid_data_login_user(
         async_client: AsyncClient,
         json: dict[str, str],
 ) -> None:
-    """Проверка аутентификации пользователя при невалидных данных."""
-    response = await async_client.post('/users/jwt/login/', json=json)
+    """Проверка получения токенов при невалидных данных."""
+    response = await async_client.post('/auth/token/login/', json=json)
     assert response.status_code == 400, (
-        'При некорректной аутентификации пользователя '
+        'При некорректном получении токенов '
         'должен возвращаться статус-код 400.'
     )
     data = response.json()
     assert list(data.keys()) == ['detail'], (
-        'При некорректной аутентификации пользователя '
+        'При некорректном получении токенов '
         'в ответе должен быть ключ `detail`.'
     )
     assert type(data['detail']) == str, (
-        'При некорректной аутентификации пользователя '
+        'При некорректном получении токенов '
         'в ответе должно быть значение строкой.'
     )
     error_message = (
@@ -109,6 +109,6 @@ async def test_03_invalid_data_login_user(
         ('Отсутствует username или email.')
     )
     assert data['detail'] in error_message, (
-        'При некорректной аутентификации пользователя '
+        'При некорректном получении токенов '
         'в ответе должно быть указано описание ошибки.'
     )

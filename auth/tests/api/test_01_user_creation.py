@@ -6,7 +6,7 @@ from .constants import INVALID_LENGTH
 
 async def test_01_register_user(async_client: AsyncClient) -> None:
     """Проверка регистрации пользователя."""
-    response = await async_client.post('/users/jwt/register/',
+    response = await async_client.post('/users/',
                                        json={'username': 'UserTestAdmin',
                                              'email': 'usertest@test.com',
                                              'password': 'testPassword12_'})
@@ -50,7 +50,7 @@ async def test_02_register_invalid_email(
         message_email: tuple[str, ...]
 ) -> None:
     """Проверка регистрации пользователя при не валидной почты."""
-    response = await async_client.post('/users/jwt/register/', json=json)
+    response = await async_client.post('/users/', json=json)
     assert response.status_code == 422, (
         'При некорректной регистрации пользователя '
         'должен возвращаться статус-код 422.'
@@ -96,7 +96,7 @@ async def test_02_register_invalid_email(
 async def test_03_invalid_password(async_client: AsyncClient,
                                    json: dict[str, str]) -> None:
     """Проверка регистрации пользователя при не валидным паролем."""
-    response = await async_client.post('/users/jwt/register/', json=json)
+    response = await async_client.post('/users/', json=json)
     assert response.status_code == 422, (
         'При некорректной регистрации пользователя '
         'должен возвращаться статус-код 422.'
@@ -137,7 +137,7 @@ async def test_03_invalid_password(async_client: AsyncClient,
 async def test_04_invalid_username(async_client: AsyncClient,
                                    json: dict[str, str]) -> None:
     """Проверка регистрации пользователя при не валидным юзернейме."""
-    response = await async_client.post('/users/jwt/register/',
+    response = await async_client.post('/users/',
                                        json=json)
     assert response.status_code == 422, (
         'При некорректной регистрации пользователя '
@@ -177,7 +177,7 @@ async def test_04_invalid_username(async_client: AsyncClient,
 async def test_05_repeat_register_user(async_client: AsyncClient,
                                        json: dict[str, str]) -> None:
     """Проверка повторной регистрации пользователя."""
-    response = await async_client.post('/users/jwt/register/',
+    response = await async_client.post('/users/',
                                        json={'username': 'UserTestAdmin',
                                              'email': 'usertest@test.com',
                                              'password': 'testPassword12_'})
