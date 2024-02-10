@@ -240,6 +240,26 @@ RESPONSE_LOGIN_EXAMPLE = {
     }
 }
 
+RESPONSE_LOGOUT_EXAMPLE = {
+    204: {
+        'description': 'Контент отсутствует',
+        'content': None
+    },
+    401: {
+        'description': 'Пользователь неавторизован',
+        'content': {
+            'application/json': {
+                {
+                    'example': {
+                        'detail': 'Не удалось подтвердить данные.'
+                    }
+                }
+            }
+        }
+    }
+}
+
+
 # RESPONSE_USER_GET_EXAMPLE = {
 #     200: {
 #         'content': {'application/json':
@@ -253,10 +273,4 @@ RESPONSE_LOGIN_EXAMPLE = {
 #             }
 #         }
 #     },
-# }
-#
-# RESPONSE_LOGOUT_EXAMPLE = {
-#     204: {
-#         'content': None
-#     }
 # }
