@@ -3,9 +3,9 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jwt import PyJWTError
 
 from auth.application.services import UserService
+from auth.application.services.exceptions import EmptyUserException
 from auth.core.jwt import decode_token
 from auth.domain.schemas import UserGet, TokenData
-from auth.application.services.exceptions import EmptyUserException
 from .dependencies import UoWDep
 
 bearer_token = HTTPBearer(auto_error=False)
@@ -19,8 +19,8 @@ async def get_current_user(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail='Не удалось подтвердить данные.',
         headers={'WWW-Authenticate': 'Bearer'})
-    token = auth.credentials
     try:
+        token = auth.credentials
         if ((username := decode_token(token).get('sub')) is None):
             raise credentials_exception
         token_data = TokenData(username=username)
@@ -35,5 +35,8 @@ async def get_current_active_user(
 ) -> UserGet:
     if current_user.is_active:
         return current_user
-    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
-                        detail='Пользователь не активен!')
+    raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail='Не удалось подтвердить данные.',
+        headers={'WWW-Authenticate': 'Bearer'}
+    )
