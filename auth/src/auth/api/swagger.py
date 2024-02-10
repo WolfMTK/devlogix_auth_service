@@ -7,6 +7,23 @@ BODY_USER_CREATE_EXAMPLE = {
     'password': 'UserAdmin12_'
 }
 
+BODY_USER_LOGIN_EXAMPLE = {
+    'Получение токена по юзернейму': {
+        'summary': 'Получение токена по юзернейму и паролю',
+        'value': {
+            'username': 'UserAdmin',
+            'password': 'UserAdmin12_'
+        }
+    },
+    'Получение токена по почте': {
+        'summary': 'Получение токена по почте и паролю',
+        'value': {
+            'email': 'user@mail.com',
+            'password': 'UserAdmin12_'
+        }
+    }
+}
+
 RESPONSE_USER_CREATE_EXAMPLE = {
     201: {
         'description': 'Пользователь успешно создан',
@@ -249,28 +266,36 @@ RESPONSE_LOGOUT_EXAMPLE = {
         'description': 'Пользователь неавторизован',
         'content': {
             'application/json': {
-                {
-                    'example': {
-                        'detail': 'Не удалось подтвердить данные.'
-                    }
+                'example': {
+                    'detail': 'Не удалось подтвердить данные.'
                 }
             }
         }
     }
 }
 
-
-# RESPONSE_USER_GET_EXAMPLE = {
-#     200: {
-#         'content': {'application/json':
-#             {
-#                 'example': {
-#                     'id': 1,
-#                     'username': 'UserAdmin',
-#                     'email': 'user@mail.com',
-#                     'is_active': True
-#                 }
-#             }
-#         }
-#     },
-# }
+RESPONSE_USER_GET_EXAMPLE = {
+    200: {
+        'description': 'Данные успешно получены',
+        'content': {'application/json':
+            {
+                'example': {
+                    'id': 1,
+                    'username': 'UserAdmin',
+                    'email': 'user@mail.com',
+                    'is_active': True
+                }
+            }
+        }
+    },
+    401: {
+        'description': 'Пользователь неавторизован',
+        'content': {
+            'application/json': {
+                'example': {
+                    'detail': 'Не удалось подтвердить данные.'
+                }
+            }
+        }
+    }
+}
