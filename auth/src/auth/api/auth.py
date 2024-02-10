@@ -17,7 +17,7 @@ async def get_current_user(
 ) -> UserGet:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
-        detail='Не удалось подтвердить данные!',
+        detail='Не удалось подтвердить данные.',
         headers={'WWW-Authenticate': 'Bearer'})
     token = auth.credentials
     try:
