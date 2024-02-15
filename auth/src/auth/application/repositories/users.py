@@ -1,3 +1,5 @@
+from typing import Sequence
+
 from sqlalchemy import select, and_
 
 from auth.application.protocols.repository import SQLAlchemyRepository
@@ -24,3 +26,13 @@ class UserRepository(SQLAlchemyRepository):
             self.model.email == email
         )).exists()
         return await self.session.scalar(select(stmt))
+
+    async def get_users(self,
+                        skip: int,
+                        limit: int,
+                        **filter_by: dict[str, str]) -> Sequence[User]:
+        stmt = select(self.model).filter_by(
+            **filter_by
+        ).limit(limit).offset(skip)
+        result = await self.session.execute(stmt)
+        return result.scalars().all()

@@ -32,6 +32,12 @@ class UserService:
                 return user.to_read_model()
             raise EmptyUserException()
 
+    async def get_users(self, uow: UoW, skip: int, limit: int) -> list[UserGet]:
+        """Получение пользователей."""
+        async with uow:
+            users = await uow.users.get_users(skip, limit)
+            return [user.to_read_model() for user in users]
+
     async def update_user(
             self, uow: UoW, user_id: int, schema: UserUpdate
     ) -> UserGet:
