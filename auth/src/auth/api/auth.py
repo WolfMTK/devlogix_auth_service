@@ -36,7 +36,6 @@ async def get_current_active_user(
     if current_user.is_active:
         return current_user
     raise HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail='Не удалось подтвердить данные.',
-        headers={'WWW-Authenticate': 'Bearer'}
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail='Доступ запрещён.',
     )
