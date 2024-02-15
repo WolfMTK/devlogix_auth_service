@@ -334,6 +334,16 @@ RESPONSE_USER_UPDATE_EXAMPLE = {
             }
         }
     },
+    403: {
+        'description': 'Доступ запрещён',
+        'content': {
+            'application/json': {
+                'example': {
+                    'detail': 'Доступ запрещён.'
+                }
+            }
+        }
+    },
     422: {
         'description': 'Невалидные данные',
         'content': {
