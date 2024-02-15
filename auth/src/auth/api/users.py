@@ -88,3 +88,16 @@ async def update_user(
 async def read_user_me(user: UserGet = Depends(get_current_active_user)):
     """Данные о себе."""
     return user
+
+
+@router.get('/',
+            name='Пользователи',
+            response_model=list[UserGet],
+            response_model_exclude_none=True,
+            dependencies=[Depends(get_current_active_user)])
+async def read_users(uow: UoWDep,
+                     skip: int = 0,
+                     limit: int = 5):
+    """Получение пользователей."""
+    return await UserService().get_users(uow, skip, limit)
+
