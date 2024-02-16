@@ -24,12 +24,10 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          cd auth/
           pip install -e .[dev]
 
       - name: Run tests
         run: |
-          cd auth/
           pytest
 
   send_message_tests:
