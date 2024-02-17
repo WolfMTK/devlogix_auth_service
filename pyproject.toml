@@ -3,30 +3,29 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
-package-dir = {"" = "src"}
+package-dir = { "" = "src" }
 
 [project]
 name = "auth"
-version = "0.1.0"
-description = "Auth services"
+version = "0.3.4"
+authors = [
+    { name = "Alexander Kuzmin", email = "qrer71@yandex.ru" }
+]
+license = { file = "LICENSE" }
+description = "Authorization service made on fastapi"
 readme = "README.md"
 requires-python = ">=3.11"
-dependencies = [
-    "alembic==1.13.1",
-    "pyjwt==2.8.0",
-    "passlib==1.7.4",
-    "fastapi==0.109.*",
-    "sqlalchemy==2.0.25",
-    "email-validator>=2.0.0",
-    "pydantic==2.6.1",
-    "uvicorn==0.27.0",
-    "asyncpg==0.29.0"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
 ]
+dynamic = ["dependencies", "optional-dependencies"]
 
-[project.optional-dependencies]
-dev = [
-    "aiosqlite==0.19.0",
-    "httpx==0.26.0",
-    "pytest<=8.0.0",
-    "pytest-asyncio==0.23.4"
-]
+[tool.setuptools.dynamic]
+dependencies = { file = ["requirements.txt"] }
+optional-dependencies = { dev = { file = ["requirements-dev.txt"] } }
+
+[project.urls]
+"Homepage" = "https://github.com/WolfMTK/devlogix_auth_service"
