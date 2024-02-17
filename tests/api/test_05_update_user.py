@@ -29,7 +29,7 @@ async def test_01_update_user(async_client: AsyncClient,
     data = response.json()
     access_token = data['access_token']
     response = await async_client.patch(
-        '/users/',
+        '/users/me/',
         headers={'authorization': 'Bearer ' + access_token},
         json=json['data']
     )
@@ -60,13 +60,13 @@ async def test_01_update_user(async_client: AsyncClient,
 
     if json['login'].get('username'):
         response = await async_client.patch(
-            '/users/',
+            '/users/me/',
             headers={'authorization': 'Bearer ' + access_token},
             json=json['login']
         )
     else:
         response = await async_client.patch(
-            '/users/',
+            '/users/me/',
             headers={'authorization': 'Bearer ' + access_token},
             json=json['login']
         )
