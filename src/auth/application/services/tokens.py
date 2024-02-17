@@ -25,7 +25,7 @@ class TokenService:
         async with uow:
             user = await self._check_user_correct_data(uow, schema)
             time_access_token = dt.timedelta(
-                minutes=Settings.time_access_token
+                minutes=int(Settings.time_access_token)
             )
             access_token = self._create_access_token(
                 user.username,
@@ -58,7 +58,7 @@ class TokenService:
             if not token:
                 raise InvalidTokenException()
             time_access_token = dt.timedelta(
-                minutes=Settings.time_access_token
+                minutes=int(Settings.time_access_token)
             )
             access_token = self._create_access_token(
                 token.user.username,
@@ -91,7 +91,7 @@ class TokenService:
             username = token.user.username
             token.name = self._create_refresh_token(username)
             time_access_token = dt.timedelta(
-                minutes=Settings.time_access_token
+                minutes=int(Settings.time_access_token)
             )
             access_token = self._create_access_token(
                 username,
