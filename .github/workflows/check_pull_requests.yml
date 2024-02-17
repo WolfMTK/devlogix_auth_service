@@ -13,6 +13,12 @@ on:
 jobs:
   tests:
     runs-on: ubuntu-latest
+
+    services:
+      image: redis:7.2.4
+      ports:
+        - 6379:6379
+
     steps:
       - name: Check out the repo
         uses: actions/checkout@v3
