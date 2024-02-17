@@ -10,3 +10,7 @@ class TokenGet(BaseModel):
 
 class TokenData(BaseModel):
     username: str | None = None
+
+
+class TokenUpdate(BaseModel):
+    refresh_token: str
