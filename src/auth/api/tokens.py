@@ -4,25 +4,33 @@ from fastapi import APIRouter, status, Body, HTTPException, Depends, Response
 
 from auth.api.auth import get_current_active_user
 from auth.api.dependencies import UoWDep
-from auth.api.swagger import (RESPONSE_LOGIN_EXAMPLE,
-                              RESPONSE_LOGOUT_EXAMPLE,
-                              BODY_USER_LOGIN_EXAMPLE)
+from auth.api.swagger import (
+    RESPONSE_LOGIN_EXAMPLE,
+    RESPONSE_LOGOUT_EXAMPLE,
+    BODY_USER_LOGIN_EXAMPLE,
+)
 from auth.application.services import exceptions
 from auth.application.services.tokens import TokenService
-from auth.domain.schemas import TokenGet
+from auth.domain.schemas import TokenGet, TokenUpdate
 from auth.domain.schemas.users import UserGet, UserLogin
 
 router = APIRouter(prefix='/auth/token', tags=['auth'])
 
 
-@router.post('/login/',
-             name='Логин',
-             response_model=TokenGet,
-             status_code=status.HTTP_200_OK,
-             responses=RESPONSE_LOGIN_EXAMPLE)
-async def login(uow: UoWDep,
-                user: UserLogin = Body(...,
-                                       openapi_examples=BODY_USER_LOGIN_EXAMPLE)):
+@router.post(
+    '/login/',
+    name='Логин',
+    response_model=TokenGet,
+    status_code=status.HTTP_200_OK,
+    responses=RESPONSE_LOGIN_EXAMPLE
+)
+async def login(
+        uow: UoWDep,
+        user: UserLogin = Body(
+            ...,
+            openapi_examples=BODY_USER_LOGIN_EXAMPLE
+        )
+):
     """
     Получение токена.
 
@@ -45,10 +53,46 @@ async def login(uow: UoWDep,
         )
 
 
-@router.post('/logout/',
-             name='Удаление токена',
-             status_code=status.HTTP_204_NO_CONTENT,
-             responses=RESPONSE_LOGOUT_EXAMPLE)
+@router.post(
+    '/update/access_token/',
+    name='Обновление временного токена',
+    response_model=TokenGet,
+    responses=RESPONSE_LOGIN_EXAMPLE
+)
+async def update_access_token(uow: UoWDep, token: TokenUpdate):
+    """Обновление временного токена."""
+    try:
+        return await TokenService().update_access_token(uow, token)
+    except exceptions.InvalidTokenException as error:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f'{error}'
+        )
+
+
+@router.post(
+    '/update/refresh_token/',
+    name='Обновление токена',
+    response_model=TokenGet,
+    responses=RESPONSE_LOGIN_EXAMPLE
+)
+async def update_refresh_token(uow: UoWDep, token: TokenUpdate):
+    """Обновление токена для обновления временного токена."""
+    try:
+        return await TokenService().update_refresh_token(uow, token)
+    except exceptions.InvalidTokenException as error:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f'{error}'
+        )
+
+
+@router.post(
+    '/logout/',
+    name='Удаление токена',
+    status_code=status.HTTP_204_NO_CONTENT,
+    responses=RESPONSE_LOGOUT_EXAMPLE
+)
 async def logout(
         current_user: Annotated[
             UserGet, Depends(get_current_active_user)

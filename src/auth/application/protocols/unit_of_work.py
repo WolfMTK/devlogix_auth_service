@@ -8,7 +8,7 @@ from auth.application.repositories import UserRepository, TokenRepository
 
 class UoW(ABC):
     users = Type[UserRepository]
-    token = Type[TokenRepository]
+    tokens = Type[TokenRepository]
 
     @abstractmethod
     async def __aenter__(self): ...
@@ -31,7 +31,7 @@ class UnitOfWork(UoW):
         self.session = self.session_factory()
 
         self.users = UserRepository(self.session)
-        self.token = TokenRepository(self.session)
+        self.tokens = TokenRepository(self.session)
 
     async def __aexit__(self, *args):
         await self.rollback()

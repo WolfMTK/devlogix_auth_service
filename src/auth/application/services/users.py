@@ -84,7 +84,7 @@ class UserService:
 
     async def _clear_token(self, uow: UoW, user: User) -> None:
         if user.token:
-            await uow.token.delete_one(user_id=user.id)
+            await uow.tokens.delete_one(user_id=user.id)
 
     async def _get_user(self, uow: UoW, username: str, email: str) -> User:
         return await uow.users.get_user(username=username, email=email)
