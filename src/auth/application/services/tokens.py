@@ -2,41 +2,104 @@ import datetime as dt
 from uuid import uuid5, uuid4
 
 from auth.application.protocols.unit_of_work import UoW
+from auth.application.services.exceptions import (
+    InvalidDataException,
+    EmptyDataException,
+    InvalidPasswordException, InvalidTokenException,
+)
 from auth.core import Settings
 from auth.core.jwt import create_token
 from auth.core.password import verify_password
 from auth.domain.models import User, Token
-from auth.domain.schemas import UserLogin, TokenGet
-from .exceptions import InvalidDataException, EmptyDataException, InvalidPasswordException
+from auth.domain.schemas import UserLogin, TokenGet, TokenUpdate
 
 
 class TokenService:
-    async def get_token(self,
-                        uow: UoW,
-                        schema: UserLogin) -> TokenGet:
+    async def get_token(
+            self,
+            uow: UoW,
+            schema: UserLogin
+    ) -> TokenGet:
         async with uow:
             user = await self._check_user_correct_data(uow, schema)
             time_access_token = dt.timedelta(
                 minutes=Settings.time_access_token
             )
-            access_token = self._create_access_token(user.username,
-                                                     time_access_token)
+            access_token = self._create_access_token(
+                user.username,
+                time_access_token
+            )
             refresh_token = self._create_refresh_token(user.username)
             if user.token:
                 user.token.name = refresh_token
             else:
                 user.token = Token(name=refresh_token)
             await uow.commit()
-            return TokenGet(access_token=access_token,
-                            expires_in=time_access_token.total_seconds(),
-                            refresh_token=refresh_token,
-                            token_type='Bearer')
+            return TokenGet(
+                access_token=access_token,
+                expires_in=time_access_token.total_seconds(),
+                refresh_token=refresh_token,
+                token_type='Bearer'
+            )
 
-    async def delete_token(self,
-                           uow: UoW,
-                           id: int):
+    async def update_access_token(
+            self,
+            uow: UoW,
+            schema: TokenUpdate
+    ) -> TokenGet:
+        """Обновление временного токена."""
         async with uow:
-            await uow.token.delete_one(user_id=id)
+            token = await uow.tokens.find_one(name=schema.refresh_token)
+            if not token:
+                raise InvalidTokenException()
+            time_access_token = dt.timedelta(
+                minutes=Settings.time_access_token
+            )
+            access_token = self._create_access_token(
+                token.user.username,
+                time_access_token
+            )
+            return TokenGet(
+                access_token=access_token,
+                expires_in=time_access_token.total_seconds(),
+                refresh_token=token.name,
+                token_type='Bearer'
+            )
+
+    async def update_refresh_token(
+            self,
+            uow: UoW,
+            schema: TokenUpdate
+    ):
+        """Обновление токена для обновления временного токена."""
+        async with uow:
+            token = await uow.tokens.find_one(name=schema.refresh_token)
+            if not token:
+                raise InvalidTokenException()
+            username = token.user.username
+            token.name = self._create_refresh_token(username)
+            time_access_token = dt.timedelta(
+                minutes=Settings.time_access_token
+            )
+            access_token = self._create_access_token(
+                username,
+                time_access_token
+            )
+            await uow.commit()
+            return TokenGet(
+                access_token=access_token,
+                expires_in=time_access_token.total_seconds(),
+                refresh_token=token.name,
+                token_type='Bearer'
+            )
+
+    async def delete_token(
+            self,
+            uow: UoW,
+            id: int
+    ):
+        async with uow:
+            await uow.tokens.delete_one(user_id=id)
             await uow.commit()
 
     def _create_access_token(self, username: str, time: dt.timedelta) -> str:
@@ -50,7 +113,10 @@ class TokenService:
     def _create_refresh_token(self, username: str) -> str:
         return str(uuid5(uuid4(), username))
 
-    async def _check_user_correct_data(self, uow: UoW, schema: UserLogin) -> User:
+    async def _check_user_correct_data(
+            self, uow: UoW,
+            schema: UserLogin
+    ) -> User:
         if schema.username and schema.email:
             raise InvalidDataException('Введите username или email.')
 
