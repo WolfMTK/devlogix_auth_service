@@ -1,9 +1,10 @@
 from auth.application.protocols.unit_of_work import UoW
+from auth.application.services.exceptions import (InvalidEmailException,
+                                                  InvalidUsernameException,
+                                                  EmptyUserException)
 from auth.core.password import get_password_hash
+from auth.domain.models import User
 from auth.domain.schemas.users import UserCreate, UserGet, UserUpdate
-from .exceptions import (EmptyUserException,
-                         InvalidEmailException,
-                         InvalidUsernameException)
 
 
 class UserService:
@@ -18,8 +19,21 @@ class UserService:
                 raise InvalidEmailException(
                     'Пользователь с такой почтой уже существует.'
                 )
+
             schema.password = get_password_hash(schema.password)
-            user = await uow.users.add_one(**schema.model_dump())
+            user = await self._get_user(uow,
+                                        username=schema.username,
+                                        email=schema.email)
+
+            if user:
+                user.set_empty_attributes()
+                await self._clear_token(uow, user)
+                user.is_active = True
+                for key, value in schema.model_dump().items():
+                    setattr(user, key, value)
+            else:
+                user = await uow.users.add_one(**schema.model_dump())
+
             await uow.commit()
             return user.to_read_model()
 
@@ -32,13 +46,14 @@ class UserService:
                 return user.to_read_model()
             raise EmptyUserException()
 
-    async def get_users(self, uow: UoW, skip: int, limit: int) -> list[UserGet]:
+    async def get_users(self, uow: UoW, skip: int, limit: int) -> list[
+        UserGet]:
         """Получение пользователей."""
         async with uow:
             users = await uow.users.get_users(skip, limit)
             return [user.to_read_model() for user in users]
 
-    async def update_user(
+    async def update_me(
             self, uow: UoW, user_id: int, schema: UserUpdate
     ) -> UserGet:
         """Обновление пользователя."""
@@ -60,6 +75,26 @@ class UserService:
             await uow.commit()
             return user.to_read_model()
 
+    async def delete_me(self, uow: UoW, user_id: int) -> None:
+        """Удаление пользователя."""
+        async with uow:
+            user = await uow.users.find_one(id=user_id)
+            user.is_active = False
+            await uow.commit()
+
+    async def _clear_token(self, uow: UoW, user: User) -> None:
+        if user.token:
+            await uow.token.delete_one(user_id=user.id)
+
+    async def _get_user(self, uow: UoW, username: str, email: str) -> User:
+        return await uow.users.get_user(username=username, email=email)
+
+    async def _check_username_exists(self, uow: UoW, username: str) -> bool:
+        return await uow.users.get_user_exists(username=username)
+
+    async def _check_email_exists(self, uow: UoW, email: str) -> bool:
+        return await uow.users.get_user_exists(email=email)
+
     async def _check_user_email(
             self, uow: UoW, id: int, email: str
     ) -> bool:
@@ -69,9 +104,3 @@ class UserService:
             self, uow: UoW, id: int, username: str
     ) -> bool:
         return await uow.users.check_username_user(id, username)
-
-    async def _check_username_exists(self, uow: UoW, username: str) -> bool:
-        return await uow.users.get_user_exists(username=username)
-
-    async def _check_email_exists(self, uow: UoW, email: str) -> bool:
-        return await uow.users.get_user_exists(email=email)
