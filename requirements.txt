@@ -1,11 +1,11 @@
 alembic==1.13.1
 pyjwt==2.8.0
 passlib==1.7.4
-fastapi==0.109.1
-sqlalchemy==2.0.25
-email-validator==2.0.0
+fastapi==0.109.2
+sqlalchemy==2.0.27
+email-validator==2.1.0.post1
 pydantic==2.6.1
-uvicorn==0.27.0
+uvicorn==0.27.1
 asyncpg==0.29.0
 redis==5.0.1
 hiredis==2.3.2
