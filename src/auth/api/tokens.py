@@ -3,7 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter, status, Body, HTTPException, Depends, Response
 
 from auth.api.auth import get_current_active_user
-from auth.api.dependencies import UoWDep
+from auth.api.dependencies import UoWDep, RedisConnect
 from auth.api.swagger import (
     RESPONSE_LOGIN_EXAMPLE,
     RESPONSE_LOGOUT_EXAMPLE,
@@ -25,7 +25,8 @@ router = APIRouter(prefix='/auth/token', tags=['auth'])
     responses=RESPONSE_LOGIN_EXAMPLE
 )
 async def login(
-        uow: UoWDep,
+        database_connect: UoWDep,
+        redis: RedisConnect,
         user: UserLogin = Body(
             ...,
             openapi_examples=BODY_USER_LOGIN_EXAMPLE
@@ -43,7 +44,7 @@ async def login(
     **username/email** и **password** являются обязательными.
     """
     try:
-        return await TokenService().get_token(uow, user)
+        return await TokenService().get_token(database_connect, redis, user)
     except (exceptions.InvalidDataException,
             exceptions.EmptyDataException,
             exceptions.InvalidPasswordException) as error:
@@ -59,10 +60,14 @@ async def login(
     response_model=TokenGet,
     responses=RESPONSE_LOGIN_EXAMPLE
 )
-async def update_access_token(uow: UoWDep, token: TokenUpdate):
+async def update_access_token(
+        uow: UoWDep,
+        redis: RedisConnect,
+        token: TokenUpdate
+):
     """Обновление временного токена."""
     try:
-        return await TokenService().update_access_token(uow, token)
+        return await TokenService().update_access_token(uow, redis, token)
     except exceptions.InvalidTokenException as error:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -76,10 +81,14 @@ async def update_access_token(uow: UoWDep, token: TokenUpdate):
     response_model=TokenGet,
     responses=RESPONSE_LOGIN_EXAMPLE
 )
-async def update_refresh_token(uow: UoWDep, token: TokenUpdate):
+async def update_refresh_token(
+        uow: UoWDep,
+        redis: RedisConnect,
+        token: TokenUpdate
+):
     """Обновление токена для обновления временного токена."""
     try:
-        return await TokenService().update_refresh_token(uow, token)
+        return await TokenService().update_refresh_token(uow, redis, token)
     except exceptions.InvalidTokenException as error:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -97,8 +106,9 @@ async def logout(
         current_user: Annotated[
             UserGet, Depends(get_current_active_user)
         ],
-        uow: UoWDep
+        uow: UoWDep,
+        redis: RedisConnect,
 ):
     """Удаление токена."""
-    await TokenService().delete_token(uow, current_user.id)
+    await TokenService().delete_token(uow, redis, current_user.id)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
