@@ -19,7 +19,7 @@ try:
 except (NameError, ImportError):
     raise AssertionError('Не обнаружен объект `UnitOfWork`.')
 try:
-    from auth.api.dependencies import unit_of_work
+    from auth.api.dependencies import connect_database
 except (NameError, ImportError):
     raise AssertionError('Не обнаружен объект `unit_of_work`.')
 
@@ -57,7 +57,7 @@ pytest_plugins = ['tests.fixtures.functions']
 
 @pytest.fixture(scope='session')
 async def async_client():
-    app.dependency_overrides[unit_of_work] = partial(
+    app.dependency_overrides[connect_database] = partial(
         UnitOfWork,
         testing_async_session_maker
     )

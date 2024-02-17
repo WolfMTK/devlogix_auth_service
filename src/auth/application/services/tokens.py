@@ -1,11 +1,12 @@
 import datetime as dt
 from uuid import uuid5, uuid4
-
+from redis.asyncio.client import Pipeline
 from auth.application.protocols.unit_of_work import UoW
 from auth.application.services.exceptions import (
     InvalidDataException,
     EmptyDataException,
-    InvalidPasswordException, InvalidTokenException,
+    InvalidPasswordException,
+    InvalidTokenException,
 )
 from auth.core import Settings
 from auth.core.jwt import create_token
@@ -18,6 +19,7 @@ class TokenService:
     async def get_token(
             self,
             uow: UoW,
+            redis: Pipeline,
             schema: UserLogin
     ) -> TokenGet:
         async with uow:
@@ -35,6 +37,8 @@ class TokenService:
             else:
                 user.token = Token(name=refresh_token)
             await uow.commit()
+            await redis.set(user.id, access_token, ex=time_access_token)
+            await redis.execute()
             return TokenGet(
                 access_token=access_token,
                 expires_in=time_access_token.total_seconds(),
@@ -45,6 +49,7 @@ class TokenService:
     async def update_access_token(
             self,
             uow: UoW,
+            redis: Pipeline,
             schema: TokenUpdate
     ) -> TokenGet:
         """Обновление временного токена."""
@@ -59,6 +64,12 @@ class TokenService:
                 token.user.username,
                 time_access_token
             )
+            await self._update_access_token(
+                redis,
+                token.user_id,
+                access_token,
+                time_access_token
+            )
             return TokenGet(
                 access_token=access_token,
                 expires_in=time_access_token.total_seconds(),
@@ -69,6 +80,7 @@ class TokenService:
     async def update_refresh_token(
             self,
             uow: UoW,
+            redis: Pipeline,
             schema: TokenUpdate
     ):
         """Обновление токена для обновления временного токена."""
@@ -86,6 +98,12 @@ class TokenService:
                 time_access_token
             )
             await uow.commit()
+            await self._update_access_token(
+                redis,
+                token.user_id,
+                access_token,
+                time_access_token
+            )
             return TokenGet(
                 access_token=access_token,
                 expires_in=time_access_token.total_seconds(),
@@ -96,22 +114,35 @@ class TokenService:
     async def delete_token(
             self,
             uow: UoW,
+            redis: Pipeline,
             id: int
     ):
         async with uow:
             await uow.tokens.delete_one(user_id=id)
             await uow.commit()
+            await redis.delete(str(id))
+            await redis.execute()
 
     def _create_access_token(self, username: str, time: dt.timedelta) -> str:
         access_token = create_token(
             data={'sub': username,
                   'date': str(dt.datetime.now() + time)},
-            expires_delta=time
         )
         return access_token
 
     def _create_refresh_token(self, username: str) -> str:
         return str(uuid5(uuid4(), username))
+
+    async def _update_access_token(
+            self,
+            redis: Pipeline,
+            user_id: int,
+            access_token: str,
+            time_access_token: dt.timedelta
+    ) -> None:
+        await redis.delete(str(user_id))
+        await redis.set(str(user_id), access_token, ex=time_access_token)
+        await redis.execute()
 
     async def _check_user_correct_data(
             self, uow: UoW,

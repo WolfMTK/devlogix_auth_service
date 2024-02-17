@@ -11,23 +11,23 @@ ModelType = TypeVar('ModelType', bound=Base)
 
 class AbstractRepository(ABC):
     @abstractmethod
-    async def add_one(self, **kwargs: dict[str, Any]):
+    async def add_one(self, *args, **kwargs):
         ...
 
     @abstractmethod
-    async def update_one(self, id: int, **kwargs: dict[str, Any]):
+    async def update_one(self, *args, **kwargs):
         ...
 
     @abstractmethod
-    async def find_one(self, **kwargs: dict[str, Any]):
+    async def find_one(self, *args, **kwargs):
         ...
 
     @abstractmethod
-    async def find_all(self, order_by: str | None = None):
+    async def find_all(self, *args, **kwargs):
         ...
 
     @abstractmethod
-    async def delete_one(self, **kwargs: dict[str, Any]):
+    async def delete_one(self, *args, **kwargs):
         ...
 
 
@@ -37,8 +37,10 @@ class SQLAlchemyRepository(AbstractRepository):
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
 
-    async def add_one(self,
-                      **kwargs: dict[str, Any]) -> ModelType:
+    async def add_one(
+            self,
+            **kwargs: dict[str, Any]
+    ) -> ModelType:
         """Добавление записи в БД."""
         stmt = insert(self.model).values(**kwargs).returning(self.model)
         result = await self.session.execute(stmt)
