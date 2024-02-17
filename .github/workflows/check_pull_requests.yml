@@ -40,25 +40,3 @@ jobs:
           to: ${{ secrets.TELEGRAM_TO }}
           token: ${{ secrets.TELEGRAM_TOKEN }}
           message: PR прошёл тесты!
-
-  automerge:
-    runs-on: ubuntu-latest
-    needs: send_message_tests
-    steps:
-      - id: automerge
-        name: automerge
-        uses: "pascalgn/automerge-action@v0.16.2"
-        env:
-          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-          MERGE_METHOD: 'merge'
-
-  send_message_automerge:
-    runs-on: ubuntu-latest
-    needs: automerge
-    steps:
-      - name: Send message
-        uses: appleboy/telegram-action@master
-        with:
-          to: ${{ secrets.TELEGRAM_TO }}
-          token: ${{ secrets.TELEGRAM_TOKEN }}
-          message: Произошло объединение веток! PR закрыт!
