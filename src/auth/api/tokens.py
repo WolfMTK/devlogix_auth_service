@@ -2,6 +2,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, status, Body, HTTPException, Depends, Response
 
+from auth.api.auth import get_current_active_user
 from auth.api.dependencies import UoWDep
 from auth.api.swagger import (RESPONSE_LOGIN_EXAMPLE,
                               RESPONSE_LOGOUT_EXAMPLE,
@@ -10,7 +11,6 @@ from auth.application.services import exceptions
 from auth.application.services.tokens import TokenService
 from auth.domain.schemas import TokenGet
 from auth.domain.schemas.users import UserGet, UserLogin
-from .auth import get_current_active_user
 
 router = APIRouter(prefix='/auth/token', tags=['auth'])
 
