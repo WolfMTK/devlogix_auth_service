@@ -27,3 +27,10 @@ class InvalidPasswordException(AuthException):
 
 class InvalidDataException(AuthException):
     """Invalid data exception."""
+
+
+class InvalidTokenException(AuthException):
+    """Invalid token exception."""
+
+    def __str__(self) -> str:
+        return 'Невалидный токен.'
