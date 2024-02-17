@@ -1,4 +1,4 @@
-from datetime import datetime
+import datetime as dt
 
 from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -25,9 +25,13 @@ class User(Base):
         back_populates='user',
         lazy='selectin',
     )
-    created_at: Mapped[datetime] = mapped_column(default=datetime.now())
+    created_at: Mapped[dt.datetime] = mapped_column(default=dt.datetime.now())
     is_active: Mapped[bool] = mapped_column(nullable=False,
                                             server_default=true())
+
+    def set_empty_attributes(self):
+        self.last_name = None
+        self.first_name = None
 
     def to_read_model(self) -> UserGet:
         return UserGet(id=self.id,
