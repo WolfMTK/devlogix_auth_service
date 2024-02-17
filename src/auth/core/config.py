@@ -6,7 +6,7 @@ from dataclasses import dataclass
 class Settings:
     db_url: str = os.getenv(
         'DB_URL',
-        'postgresql+asyncpg://postgres:password@localhost:5432/users'
+        'sqlite+aiosqlite:///db.db'
     )
     secret_token: str = os.getenv('SECRET_TOKEN', 'token')
     algorithm: str = os.getenv('ALGORITHM', 'HS256')
