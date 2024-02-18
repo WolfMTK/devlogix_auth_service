@@ -6,26 +6,32 @@ from auth.application.services import UserService
 from auth.application.services.exceptions import EmptyUserException
 from auth.core.jwt import decode_token
 from auth.domain.schemas import UserGet, TokenData
-from .dependencies import UoWDep
+from .dependencies import UoWDep, RedisConnect
 
 bearer_token = HTTPBearer(auto_error=False)
 
 
 async def get_current_user(
         uow: UoWDep,
+        redis: RedisConnect,
         auth: HTTPAuthorizationCredentials = Depends(bearer_token)
 ) -> UserGet:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail='Не удалось подтвердить данные.',
-        headers={'WWW-Authenticate': 'Bearer'})
+        headers={'WWW-Authenticate': 'Bearer'}
+    )
     try:
         token = auth.credentials
         if ((username := decode_token(token).get('sub')) is None):
             raise credentials_exception
         token_data = TokenData(username=username)
-
-        return await UserService().get_user(uow, token_data.username)
+        user = await UserService().get_user(uow, token_data.username)
+        await redis.get(user.id)
+        user_token = (await redis.execute())[0].decode('utf-8')
+        if not (user_token == token):
+            raise credentials_exception
+        return user
     except (PyJWTError, AttributeError, EmptyUserException):
         raise credentials_exception
 
