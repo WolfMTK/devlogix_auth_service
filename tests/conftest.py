@@ -15,13 +15,9 @@ try:
 except (NameError, ImportError):
     raise AssertionError('Не обнаружен объект `Base`')
 try:
-    from auth.application.protocols.unit_of_work import UnitOfWork
+    from auth.application.protocols.unit_of_work import UnitOfWork, UoW
 except (NameError, ImportError):
-    raise AssertionError('Не обнаружен объект `UnitOfWork`.')
-try:
-    from auth.api.dependencies import connect_database
-except (NameError, ImportError):
-    raise AssertionError('Не обнаружен объект `unit_of_work`.')
+    raise AssertionError('Не обнаружен объекты `UnitOfWork`, `UoW`.')
 
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
 
@@ -57,7 +53,7 @@ pytest_plugins = ['tests.fixtures.functions']
 
 @pytest.fixture(scope='session')
 async def async_client():
-    app.dependency_overrides[connect_database] = partial(
+    app.dependency_overrides[UoW] = partial(
         UnitOfWork,
         testing_async_session_maker
     )
