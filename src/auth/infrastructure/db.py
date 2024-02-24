@@ -21,8 +21,8 @@ class Base:
     id: Mapped[int] = mapped_column(primary_key=True)
 
     @declared_attr
-    def __tablename__(cls):
-        return cls.__name__.lower()
+    def __tablename__(self):
+        return self.__name__.lower()
 
 
 Base = declarative_base(cls=Base)

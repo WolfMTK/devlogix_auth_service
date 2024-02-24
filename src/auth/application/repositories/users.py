@@ -18,7 +18,7 @@ class UserRepository(SQLAlchemyRepository):
 
     async def get_user_exists(self, **filter_by: dict[str, str]) -> bool:
         stmt = (select(self.model)
-                .where(self.model.is_active == True)
+                .where(self.model.is_active == True)  # noqa: E712
                 .filter_by(**filter_by).exists())
         return await self.session.scalar(select(stmt))
 

@@ -7,7 +7,7 @@ from auth.application.services import UserService
 from auth.application.services.exceptions import EmptyUserException
 from auth.core.jwt import decode_token
 from auth.domain.schemas import UserGet, TokenData
-from .dependencies import RedisConnect
+from auth.api.dependencies import RedisConnect
 
 bearer_token = HTTPBearer(auto_error=False)
 
@@ -24,7 +24,7 @@ async def get_current_user(
     )
     try:
         token = auth.credentials
-        if ((username := decode_token(token).get('sub')) is None):
+        if (username := decode_token(token).get('sub')) is None:
             raise credentials_exception
         token_data = TokenData(username=username)
         user = await UserService().get_user(uow, token_data.username)
