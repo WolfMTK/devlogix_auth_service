@@ -1,13 +1,15 @@
 from fastapi import APIRouter, status, Body, HTTPException
 from fastapi import Depends
 
-from auth.api.auth import get_current_active_user
-from auth.api.dependencies import UoWDep
-from auth.api.swagger import (RESPONSE_USER_CREATE_EXAMPLE,
-                              BODY_USER_CREATE_EXAMPLE,
-                              RESPONSE_USER_UPDATE_EXAMPLE,
-                              BODY_USER_UPDATE_EXAMPLE,
-                              RESPONSE_USER_GET_EXAMPLE)
+from auth.api.permissions import get_current_active_user
+from auth.api.swagger import (
+    RESPONSE_USER_CREATE_EXAMPLE,
+    BODY_USER_CREATE_EXAMPLE,
+    RESPONSE_USER_UPDATE_EXAMPLE,
+    BODY_USER_UPDATE_EXAMPLE,
+    RESPONSE_USER_GET_EXAMPLE,
+)
+from auth.application.protocols.unit_of_work import UoW
 from auth.application.services import exceptions
 from auth.application.services.users import UserService
 from auth.domain.schemas.users import UserGet, UserCreate, UserUpdate
@@ -15,14 +17,16 @@ from auth.domain.schemas.users import UserGet, UserCreate, UserUpdate
 router = APIRouter(prefix='/users', tags=['users'])
 
 
-@router.post('/',
-             name='Регистраци пользователя',
-             response_model=UserGet,
-             response_model_exclude_none=True,
-             status_code=status.HTTP_201_CREATED,
-             responses=RESPONSE_USER_CREATE_EXAMPLE)
+@router.post(
+    '/',
+    name='Регистраци пользователя',
+    response_model=UserGet,
+    response_model_exclude_none=True,
+    status_code=status.HTTP_201_CREATED,
+    responses=RESPONSE_USER_CREATE_EXAMPLE
+)
 async def create_user(
-        uow: UoWDep,
+        uow: UoW = Depends(),
         user: UserCreate = Body(..., example=BODY_USER_CREATE_EXAMPLE),
 ):
     """
@@ -46,23 +50,27 @@ async def create_user(
         )
 
 
-@router.get('/me/',
-            name='Данные о себе',
-            response_model=UserGet,
-            response_model_exclude_none=True,
-            responses=RESPONSE_USER_GET_EXAMPLE)
+@router.get(
+    '/me/',
+    name='Данные о себе',
+    response_model=UserGet,
+    response_model_exclude_none=True,
+    responses=RESPONSE_USER_GET_EXAMPLE
+)
 async def read_user_me(user: UserGet = Depends(get_current_active_user)):
     """Данные о себе."""
     return user
 
 
-@router.patch('/me/',
-              name='Обновления данных о себе',
-              response_model=UserGet,
-              response_model_exclude_none=True,
-              responses=RESPONSE_USER_UPDATE_EXAMPLE)
+@router.patch(
+    '/me/',
+    name='Обновления данных о себе',
+    response_model=UserGet,
+    response_model_exclude_none=True,
+    responses=RESPONSE_USER_UPDATE_EXAMPLE
+)
 async def update_user(
-        uow: UoWDep,
+        uow: UoW = Depends(),
         user: UserUpdate = Body(..., example=BODY_USER_UPDATE_EXAMPLE),
         current_user: UserGet = Depends(get_current_active_user)
 ):
@@ -91,22 +99,31 @@ async def update_user(
         )
 
 
-@router.get('/',
-            name='Пользователи',
-            response_model=list[UserGet],
-            response_model_exclude_none=True,
-            dependencies=[Depends(get_current_active_user)])
-async def read_users(uow: UoWDep,
-                     skip: int = 0,
-                     limit: int = 5):
+@router.get(
+    '/',
+    name='Пользователи',
+    response_model=list[UserGet],
+    response_model_exclude_none=True,
+    dependencies=[Depends(get_current_active_user)]
+)
+async def read_users(
+        uow: UoW = Depends(),
+        skip: int = 0,
+        limit: int = 5
+):
     """Получение пользователей."""
     return await UserService().get_users(uow, skip, limit)
 
 
-@router.delete('/me/',
-               name='Удаление аккаунта')
-async def delete_me(uow: UoWDep,
-                    current_user: UserGet = Depends(
-                        get_current_active_user)) -> None:
+@router.delete(
+    '/me/',
+    name='Удаление аккаунта'
+)
+async def delete_me(
+        uow: UoW = Depends(),
+        current_user: UserGet = Depends(
+            get_current_active_user
+        )
+) -> None:
     """Удаление аккаунта."""
     await UserService().delete_me(uow, current_user.id)
