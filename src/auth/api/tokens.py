@@ -2,13 +2,14 @@ from typing import Annotated
 
 from fastapi import APIRouter, status, Body, HTTPException, Depends, Response
 
-from auth.api.auth import get_current_active_user
-from auth.api.dependencies import UoWDep, RedisConnect
+from auth.api.dependencies import RedisConnect
+from auth.api.permissions import get_current_active_user
 from auth.api.swagger import (
     RESPONSE_LOGIN_EXAMPLE,
     RESPONSE_LOGOUT_EXAMPLE,
     BODY_USER_LOGIN_EXAMPLE,
 )
+from auth.application.protocols.unit_of_work import UoW
 from auth.application.services import exceptions
 from auth.application.services.tokens import TokenService
 from auth.domain.schemas import TokenGet, TokenUpdate
@@ -25,8 +26,8 @@ router = APIRouter(prefix='/auth/token', tags=['auth'])
     responses=RESPONSE_LOGIN_EXAMPLE
 )
 async def login(
-        database_connect: UoWDep,
         redis: RedisConnect,
+        uow: UoW = Depends(),
         user: UserLogin = Body(
             ...,
             openapi_examples=BODY_USER_LOGIN_EXAMPLE
@@ -44,7 +45,7 @@ async def login(
     **username/email** и **password** являются обязательными.
     """
     try:
-        return await TokenService().get_token(database_connect, redis, user)
+        return await TokenService().get_token(uow, redis, user)
     except (exceptions.InvalidDataException,
             exceptions.EmptyDataException,
             exceptions.InvalidPasswordException) as error:
@@ -61,9 +62,9 @@ async def login(
     responses=RESPONSE_LOGIN_EXAMPLE
 )
 async def update_access_token(
-        uow: UoWDep,
         redis: RedisConnect,
-        token: TokenUpdate
+        token: TokenUpdate,
+        uow: UoW = Depends(),
 ):
     """Обновление временного токена."""
     try:
@@ -82,9 +83,9 @@ async def update_access_token(
     responses=RESPONSE_LOGIN_EXAMPLE
 )
 async def update_refresh_token(
-        uow: UoWDep,
         redis: RedisConnect,
-        token: TokenUpdate
+        token: TokenUpdate,
+        uow: UoW = Depends(),
 ):
     """Обновление токена для обновления временного токена."""
     try:
@@ -106,8 +107,8 @@ async def logout(
         current_user: Annotated[
             UserGet, Depends(get_current_active_user)
         ],
-        uow: UoWDep,
         redis: RedisConnect,
+        uow: UoW = Depends(),
 ):
     """Удаление токена."""
     await TokenService().delete_token(uow, redis, current_user.id)
