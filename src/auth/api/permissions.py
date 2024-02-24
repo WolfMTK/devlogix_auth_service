@@ -2,18 +2,19 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jwt import PyJWTError
 
+from auth.application.protocols.unit_of_work import UoW
 from auth.application.services import UserService
 from auth.application.services.exceptions import EmptyUserException
 from auth.core.jwt import decode_token
 from auth.domain.schemas import UserGet, TokenData
-from .dependencies import UoWDep, RedisConnect
+from .dependencies import RedisConnect
 
 bearer_token = HTTPBearer(auto_error=False)
 
 
 async def get_current_user(
-        uow: UoWDep,
         redis: RedisConnect,
+        uow: UoW = Depends(),
         auth: HTTPAuthorizationCredentials = Depends(bearer_token)
 ) -> UserGet:
     credentials_exception = HTTPException(
