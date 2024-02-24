@@ -8,11 +8,13 @@ from sqlalchemy.orm import (
 
 from auth.core import Settings
 
-engine = create_async_engine(
-    url=Settings.db_url,
-    echo=False
-)
-async_session_maker = async_sessionmaker(engine, expire_on_commit=False)
+
+def create_async_session_maker():
+    engine = create_async_engine(
+        url=Settings.db_url,
+        echo=False
+    )
+    return async_sessionmaker(engine, expire_on_commit=False)
 
 
 class Base:
