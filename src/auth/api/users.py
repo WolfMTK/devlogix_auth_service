@@ -2,17 +2,18 @@ from fastapi import APIRouter, status, Body, HTTPException
 from fastapi import Depends
 
 from auth.api.permissions import get_current_active_user
-from auth.api.swagger import (
-    RESPONSE_USER_CREATE_EXAMPLE,
-    BODY_USER_CREATE_EXAMPLE,
-    RESPONSE_USER_UPDATE_EXAMPLE,
-    BODY_USER_UPDATE_EXAMPLE,
-    RESPONSE_USER_GET_EXAMPLE,
-)
+from auth.application import exceptions
+from auth.application.models import UserGet, UserCreate, UserUpdate
 from auth.application.protocols.database import UoWDatabase
-from auth.application.services import exceptions
 from auth.application.services.users import UserService
-from auth.domain.schemas.users import UserGet, UserCreate, UserUpdate
+from auth.openapi.requests import (
+    BODY_USER_CREATE_EXAMPLE,
+    BODY_USER_UPDATE_EXAMPLE,
+)
+from auth.openapi.response import (
+    RESPONSE_USER_GET_EXAMPLE,
+    RESPONSE_USER_UPDATE_EXAMPLE, RESPONSE_USER_CREATE_EXAMPLE,
+)
 
 router = APIRouter(prefix='/users', tags=['users'])
 

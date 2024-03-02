@@ -11,7 +11,7 @@ try:
 except (NameError, ImportError):
     raise AssertionError('Не обнаружен объект `app`.')
 try:
-    from auth.domain.models import Base
+    from auth.adapters.sqlalchemy_db.models.base import Base
 except (NameError, ImportError):
     raise AssertionError('Не обнаружен объект `Base`')
 try:

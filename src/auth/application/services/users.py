@@ -1,12 +1,12 @@
-from auth.application.protocols.database import UoWDatabase
-from auth.application.services.exceptions import (
+from auth.adapters.sqlalchemy_db.models import User
+from auth.application.exceptions import (
     InvalidEmailException,
     InvalidUsernameException,
     EmptyUserException,
 )
+from auth.application.models.users import UserCreate, UserGet, UserUpdate
+from auth.application.protocols.database import UoWDatabase
 from auth.core.password import get_password_hash
-from auth.domain.models import User
-from auth.domain.schemas.users import UserCreate, UserGet, UserUpdate
 
 
 class UserService:
@@ -54,16 +54,21 @@ class UserService:
                 return user.to_read_model()
             raise EmptyUserException()
 
-    async def get_users(self, uow: UoWDatabase, skip: int, limit: int) -> \
-    list[
-        UserGet]:
+    async def get_users(
+            self,
+            uow: UoWDatabase,
+            skip: int,
+            limit: int
+    ) -> list[UserGet]:
         """Получение пользователей."""
         async with uow:
             users = await uow.users.get_users(skip, limit)
             return [user.to_read_model() for user in users]
 
     async def update_me(
-            self, uow: UoWDatabase, user_id: int, schema: UserUpdate
+            self, uow: UoWDatabase,
+            user_id: int,
+            schema: UserUpdate
     ) -> UserGet:
         """Обновление пользователя."""
         async with uow:

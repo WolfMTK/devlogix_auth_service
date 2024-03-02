@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import TypeVar
 
-from auth.domain.models import Base
+from auth.adapters.sqlalchemy_db.models import Base
 
 ModelType = TypeVar('ModelType', bound=Base)
 

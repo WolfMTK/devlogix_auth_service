@@ -3,7 +3,7 @@ from typing import Sequence
 from sqlalchemy import select, and_, or_
 
 from auth.adapters.sqlalchemy_db.base import SQLAlchemyRepository
-from auth.domain.models import User
+from auth.adapters.sqlalchemy_db.models import User
 
 
 class UserRepository(SQLAlchemyRepository):
@@ -11,8 +11,12 @@ class UserRepository(SQLAlchemyRepository):
 
     async def get_user(self, username: str, email: str) -> User | None:
         stmt = (select(self.model)
-                .where(or_(self.model.username == username,
-                           self.model.email == email)))
+        .where(
+            or_(
+                self.model.username == username,
+                self.model.email == email
+            )
+        ))
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
 
@@ -24,22 +28,32 @@ class UserRepository(SQLAlchemyRepository):
 
     async def check_username_user(self, id: int, username: str) -> bool:
         stmt = (select(self.model)
-                .filter(and_(self.model.id != id,
-                             self.model.username == username))
+                .filter(
+            and_(
+                self.model.id != id,
+                self.model.username == username
+            )
+        )
                 .exists())
         return await self.session.scalar(select(stmt))
 
     async def check_email_user(self, id: int, email: str) -> bool:
         stmt = (select(self.model)
-                .filter(and_(self.model.id != id,
-                             self.model.email == email))
+                .filter(
+            and_(
+                self.model.id != id,
+                self.model.email == email
+            )
+        )
                 .exists())
         return await self.session.scalar(select(stmt))
 
-    async def get_users(self,
-                        skip: int,
-                        limit: int,
-                        **filter_by: dict[str, str]) -> Sequence[User]:
+    async def get_users(
+            self,
+            skip: int,
+            limit: int,
+            **filter_by: dict[str, str]
+    ) -> Sequence[User]:
         stmt = (select(self.model)
                 .filter_by(**filter_by)
                 .limit(limit)

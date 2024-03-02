@@ -4,16 +4,15 @@ from fastapi import APIRouter, status, Body, HTTPException, Depends, Response
 from redis.asyncio.client import Pipeline, AbstractRedis
 
 from auth.api.permissions import get_current_active_user
-from auth.api.swagger import (
+from auth.application import exceptions
+from auth.application.models import TokenGet, TokenUpdate, UserLogin, UserGet
+from auth.application.protocols.database import UoWDatabase
+from auth.application.services.tokens import TokenService
+from auth.openapi.requests import BODY_USER_LOGIN_EXAMPLE
+from auth.openapi.response import (
     RESPONSE_LOGIN_EXAMPLE,
     RESPONSE_LOGOUT_EXAMPLE,
-    BODY_USER_LOGIN_EXAMPLE,
 )
-from auth.application.protocols.database import UoWDatabase
-from auth.application.services import exceptions
-from auth.application.services.tokens import TokenService
-from auth.domain.schemas import TokenGet, TokenUpdate
-from auth.domain.schemas.users import UserGet, UserLogin
 
 router = APIRouter(prefix='/auth/token', tags=['auth'])
 

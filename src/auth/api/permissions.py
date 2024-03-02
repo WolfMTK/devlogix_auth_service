@@ -3,11 +3,11 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jwt import PyJWTError
 from redis.asyncio.client import AbstractRedis, Pipeline
 
+from auth.application.exceptions import EmptyUserException
+from auth.application.models import UserGet, TokenData
 from auth.application.protocols.database import UoWDatabase
 from auth.application.services import UserService
-from auth.application.services.exceptions import EmptyUserException
 from auth.core.jwt import decode_token
-from auth.domain.schemas import UserGet, TokenData
 
 bearer_token = HTTPBearer(auto_error=False)
 
@@ -29,7 +29,7 @@ async def get_current_user(
             raise credentials_exception
         token_data = TokenData(username=username)
         user = await UserService().get_user(uow, token_data.username)
-        await redis.get(str(user.id))
+        await redis.get(f'access-token::{user.id}')
         user_token = (await redis.execute())[0].decode('utf-8')
         if not (user_token == token):
             raise credentials_exception
