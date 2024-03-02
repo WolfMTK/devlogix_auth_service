@@ -9,7 +9,7 @@ from auth.api.swagger import (
     BODY_USER_UPDATE_EXAMPLE,
     RESPONSE_USER_GET_EXAMPLE,
 )
-from auth.application.protocols.unit_of_work import UoW
+from auth.application.protocols.database import UoWDatabase
 from auth.application.services import exceptions
 from auth.application.services.users import UserService
 from auth.domain.schemas.users import UserGet, UserCreate, UserUpdate
@@ -26,7 +26,7 @@ router = APIRouter(prefix='/users', tags=['users'])
     responses=RESPONSE_USER_CREATE_EXAMPLE
 )
 async def create_user(
-        uow: UoW = Depends(),
+        uow: UoWDatabase = Depends(),
         user: UserCreate = Body(..., example=BODY_USER_CREATE_EXAMPLE),
 ):
     """
@@ -70,7 +70,7 @@ async def read_user_me(user: UserGet = Depends(get_current_active_user)):
     responses=RESPONSE_USER_UPDATE_EXAMPLE
 )
 async def update_user(
-        uow: UoW = Depends(),
+        uow: UoWDatabase = Depends(),
         user: UserUpdate = Body(..., example=BODY_USER_UPDATE_EXAMPLE),
         current_user: UserGet = Depends(get_current_active_user)
 ):
@@ -107,7 +107,7 @@ async def update_user(
     dependencies=[Depends(get_current_active_user)]
 )
 async def read_users(
-        uow: UoW = Depends(),
+        uow: UoWDatabase = Depends(),
         skip: int = 0,
         limit: int = 5
 ):
@@ -120,7 +120,7 @@ async def read_users(
     name='Удаление аккаунта'
 )
 async def delete_me(
-        uow: UoW = Depends(),
+        uow: UoWDatabase = Depends(),
         current_user: UserGet = Depends(
             get_current_active_user
         )

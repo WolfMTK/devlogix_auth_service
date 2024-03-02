@@ -1,20 +1,20 @@
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jwt import PyJWTError
+from redis.asyncio.client import AbstractRedis, Pipeline
 
-from auth.application.protocols.unit_of_work import UoW
+from auth.application.protocols.database import UoWDatabase
 from auth.application.services import UserService
 from auth.application.services.exceptions import EmptyUserException
 from auth.core.jwt import decode_token
 from auth.domain.schemas import UserGet, TokenData
-from auth.api.dependencies import RedisConnect
 
 bearer_token = HTTPBearer(auto_error=False)
 
 
 async def get_current_user(
-        redis: RedisConnect,
-        uow: UoW = Depends(),
+        redis: AbstractRedis = Depends(),
+        uow: UoWDatabase = Depends(),
         auth: HTTPAuthorizationCredentials = Depends(bearer_token)
 ) -> UserGet:
     credentials_exception = HTTPException(
@@ -22,13 +22,14 @@ async def get_current_user(
         detail='Не удалось подтвердить данные.',
         headers={'WWW-Authenticate': 'Bearer'}
     )
+    redis: Pipeline = redis  # noqa
     try:
         token = auth.credentials
         if (username := decode_token(token).get('sub')) is None:
             raise credentials_exception
         token_data = TokenData(username=username)
         user = await UserService().get_user(uow, token_data.username)
-        await redis.get(user.id)
+        await redis.get(str(user.id))
         user_token = (await redis.execute())[0].decode('utf-8')
         if not (user_token == token):
             raise credentials_exception

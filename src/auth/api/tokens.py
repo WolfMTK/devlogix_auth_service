@@ -1,15 +1,15 @@
 from typing import Annotated
 
 from fastapi import APIRouter, status, Body, HTTPException, Depends, Response
+from redis.asyncio.client import Pipeline, AbstractRedis
 
-from auth.api.dependencies import RedisConnect
 from auth.api.permissions import get_current_active_user
 from auth.api.swagger import (
     RESPONSE_LOGIN_EXAMPLE,
     RESPONSE_LOGOUT_EXAMPLE,
     BODY_USER_LOGIN_EXAMPLE,
 )
-from auth.application.protocols.unit_of_work import UoW
+from auth.application.protocols.database import UoWDatabase
 from auth.application.services import exceptions
 from auth.application.services.tokens import TokenService
 from auth.domain.schemas import TokenGet, TokenUpdate
@@ -26,8 +26,8 @@ router = APIRouter(prefix='/auth/token', tags=['auth'])
     responses=RESPONSE_LOGIN_EXAMPLE
 )
 async def login(
-        redis: RedisConnect,
-        uow: UoW = Depends(),
+        redis: AbstractRedis = Depends(),
+        uow: UoWDatabase = Depends(),
         user: UserLogin = Body(
             ...,
             openapi_examples=BODY_USER_LOGIN_EXAMPLE
@@ -44,6 +44,7 @@ async def login(
 
     **username/email** и **password** являются обязательными.
     """
+    redis: Pipeline = redis  # noqa
     try:
         return await TokenService().get_token(uow, redis, user)
     except (exceptions.InvalidDataException,
@@ -62,11 +63,12 @@ async def login(
     responses=RESPONSE_LOGIN_EXAMPLE
 )
 async def update_access_token(
-        redis: RedisConnect,
         token: TokenUpdate,
-        uow: UoW = Depends(),
+        redis: AbstractRedis = Depends(),
+        uow: UoWDatabase = Depends(),
 ):
     """Обновление временного токена."""
+    redis: Pipeline = redis  # noqa
     try:
         return await TokenService().update_access_token(uow, redis, token)
     except exceptions.InvalidTokenException as error:
@@ -83,11 +85,12 @@ async def update_access_token(
     responses=RESPONSE_LOGIN_EXAMPLE
 )
 async def update_refresh_token(
-        redis: RedisConnect,
         token: TokenUpdate,
-        uow: UoW = Depends(),
+        redis: AbstractRedis = Depends(),
+        uow: UoWDatabase = Depends(),
 ):
     """Обновление токена для обновления временного токена."""
+    redis: Pipeline = redis  # noqa
     try:
         return await TokenService().update_refresh_token(uow, redis, token)
     except exceptions.InvalidTokenException as error:
@@ -107,9 +110,10 @@ async def logout(
         current_user: Annotated[
             UserGet, Depends(get_current_active_user)
         ],
-        redis: RedisConnect,
-        uow: UoW = Depends(),
+        redis: AbstractRedis = Depends(),
+        uow: UoWDatabase = Depends(),
 ):
     """Удаление токена."""
+    redis: Pipeline = redis  # noqa
     await TokenService().delete_token(uow, redis, current_user.id)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
