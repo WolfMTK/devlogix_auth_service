@@ -34,6 +34,7 @@ class TokenService:
             user = await self._check_user_correct_data(uow, schema)
             access_token = self._create_access_token(
                 user.username,
+                [role.name for role in user.roles if role],
                 self._time_access_token
             )
             refresh_token = self._create_refresh_token(user.username)
@@ -67,6 +68,7 @@ class TokenService:
                 raise InvalidTokenException()
             access_token = self._create_access_token(
                 token.user.username,
+                [role.name for role in token.user.roles if role],
                 self._time_access_token
             )
             await self._update_access_token(
@@ -97,6 +99,7 @@ class TokenService:
             token.name = self._create_refresh_token(username)
             access_token = self._create_access_token(
                 username,
+                [role.name for role in token.user.roles if role],
                 self._time_access_token
             )
             await uow.commit()
@@ -126,9 +129,15 @@ class TokenService:
             await redis.delete(f'access-token::{id}')
             await redis.execute()
 
-    def _create_access_token(self, username: str, time: dt.timedelta) -> str:
+    def _create_access_token(
+            self,
+            username: str,
+            roles: list[str],
+            time: (dt.timedelta)
+    ) -> str:
         access_token = create_token(
             data={'sub': username,
+                  'roles': roles,
                   'date': str(dt.datetime.now() + time)},
         )
         return access_token
