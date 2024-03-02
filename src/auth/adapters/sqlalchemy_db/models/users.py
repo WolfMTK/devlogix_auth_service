@@ -4,8 +4,8 @@ from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql.expression import true
 
-from auth.domain.models.base import Base
-from auth.domain.schemas.users import UserGet
+from auth.adapters.sqlalchemy_db.models.base import Base
+from auth.application.models.users import UserGet
 
 
 class User(Base):
