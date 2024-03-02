@@ -46,11 +46,8 @@ class Users(Base):
         self.first_name = None  # noqa
 
     def to_read_model(self) -> UserGet:
-        return UserGet(
-            id=self.id,
-            username=self.username,
-            email=self.email,
-            first_name=self.first_name,
-            last_name=self.last_name,
-            is_active=self.is_active
-        )
+        schema = UserGet()
+        for key, value in vars(self).items():
+            if hasattr(schema, key):
+                setattr(schema, key, value)
+        return schema
