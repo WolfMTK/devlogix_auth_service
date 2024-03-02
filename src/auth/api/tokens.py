@@ -116,3 +116,13 @@ async def logout(
     redis: Pipeline = redis  # noqa
     await TokenService().delete_token(uow, redis, current_user.id)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@router.post(
+    '/',
+    include_in_schema=False,
+    dependencies=[Depends(get_current_active_user)]
+)
+async def check_user() -> dict[str, bool]:
+    """Проверка пользователя."""
+    return {'status': True}
