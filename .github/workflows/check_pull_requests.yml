@@ -46,4 +46,4 @@ jobs:
         with:
           to: ${{ secrets.TELEGRAM_TO }}
           token: ${{ secrets.TELEGRAM_TOKEN }}
-          message: PR прошёл тесты!
+          message: Tests success!
