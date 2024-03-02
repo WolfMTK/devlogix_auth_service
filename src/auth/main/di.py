@@ -11,10 +11,12 @@ from auth.core import Settings
 
 
 def create_redis_connect():
+    """Создание подключение к Redis с pipeline."""
     return aioredis.from_url(Settings.redis).pipeline()
 
 
 def create_async_session_maker():
+    """Создание асинхронного сеанса SQLAlchemy."""
     engine = create_async_engine(
         url=Settings.db_url,
         echo=False
@@ -23,6 +25,7 @@ def create_async_session_maker():
 
 
 def init_dependencies(app: FastAPI) -> None:
+    """Инициализация зависимостей."""
     app.dependency_overrides[UoWDatabase] = partial(
         Session,
         create_async_session_maker()

@@ -4,6 +4,7 @@ from auth.core import Settings
 
 
 def create_token(data: dict) -> str:
+    """Создание JWT токена."""
     to_encode = data.copy()
     return jwt.encode(
         to_encode,
@@ -13,6 +14,7 @@ def create_token(data: dict) -> str:
 
 
 def decode_token(token: str) -> dict:
+    """Декодирование JWT токена."""
     return jwt.decode(
         token,
         Settings.secret_token,

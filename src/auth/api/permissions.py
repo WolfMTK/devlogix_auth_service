@@ -17,6 +17,7 @@ async def get_current_user(
         uow: UoWDatabase = Depends(),
         auth: HTTPAuthorizationCredentials = Depends(bearer_token)
 ) -> UserGet:
+    """Получение текущего пользователя."""
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail='Не удалось подтвердить данные.',
@@ -41,6 +42,7 @@ async def get_current_user(
 async def get_current_active_user(
         current_user: UserGet = Depends(get_current_user)
 ) -> UserGet:
+    """Получение активного пользователя."""
     return await _get_user(current_user, 'is_active')
 
 
@@ -49,6 +51,7 @@ async def get_current_admin(
             get_current_active_user
         )
 ):
+    """Получение пользователя с ролью админ."""
     return await _get_user(current_user, 'is_admin')
 
 

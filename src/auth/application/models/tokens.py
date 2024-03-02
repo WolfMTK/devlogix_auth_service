@@ -15,7 +15,6 @@ class TokenBase(BaseModel):
 
 class TokenGet(TokenBase):
     """Схема получения токенов."""
-
     access_token: str = Field(..., description='Временный токен')
     expires_in: int = Field(..., description='Время действия токена')
     token_type: str = Field(..., description='Тип токена')

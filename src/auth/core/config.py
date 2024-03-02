@@ -4,6 +4,8 @@ from dataclasses import dataclass
 
 @dataclass
 class Settings:
+    """Настройки для приложения."""
+
     db_url: str = os.getenv(
         'DB_URL',
         'sqlite+aiosqlite:///db.db'

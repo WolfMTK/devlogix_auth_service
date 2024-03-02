@@ -36,6 +36,7 @@ class UsernameValidate:
         self._username = username
 
     def validate(self) -> None:
+        """Валидация юзернейма."""
         self._check_length_username()
 
     def _check_length_username(self) -> None:
