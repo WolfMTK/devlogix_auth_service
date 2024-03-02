@@ -4,11 +4,12 @@ from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql.expression import true
 
+from auth.adapters.sqlalchemy_db.models.association_tables import users_roles
 from auth.adapters.sqlalchemy_db.models.base import Base
 from auth.application.models.users import UserGet
 
 
-class User(Base):
+class Users(Base):
     """Модель пользователей."""
     id: Mapped[int] = mapped_column(primary_key=True)
     first_name: Mapped[str] = mapped_column(nullable=True)
@@ -25,9 +26,14 @@ class User(Base):
         index=True
     )
     password: Mapped[str] = mapped_column(nullable=False)
-    token: Mapped['Token'] = relationship(
+    token: Mapped['Tokens'] = relationship(
         back_populates='user',
         lazy='selectin',
+    )
+    roles: Mapped[list['Roles']] = relationship(
+        secondary=users_roles,
+        back_populates='user',
+        lazy='joined'
     )
     created_at: Mapped[dt.datetime] = mapped_column(default=dt.datetime.now())
     is_active: Mapped[bool] = mapped_column(
