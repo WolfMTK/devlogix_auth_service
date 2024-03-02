@@ -41,7 +41,19 @@ async def get_current_user(
 async def get_current_active_user(
         current_user: UserGet = Depends(get_current_user)
 ) -> UserGet:
-    if current_user.is_active:
+    return await _get_user(current_user, 'is_active')
+
+
+async def get_current_admin(
+        current_user: UserGet = Depends(
+            get_current_active_user
+        )
+):
+    return await _get_user(current_user, 'is_admin')
+
+
+async def _get_user(current_user: UserGet, value: str) -> UserGet:
+    if getattr(current_user, value):
         return current_user
     raise HTTPException(
         status_code=status.HTTP_403_FORBIDDEN,
