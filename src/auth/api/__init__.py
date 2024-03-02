@@ -1,4 +1,4 @@
-from . import users, tokens
+from .routers import tokens, users
 
 routers = (users.router,
            tokens.router)
