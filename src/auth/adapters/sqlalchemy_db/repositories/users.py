@@ -3,13 +3,13 @@ from typing import Sequence
 from sqlalchemy import select, and_, or_
 
 from auth.adapters.sqlalchemy_db.base import SQLAlchemyRepository
-from auth.adapters.sqlalchemy_db.models import User
+from auth.adapters.sqlalchemy_db.models import Users
 
 
 class UserRepository(SQLAlchemyRepository):
-    model = User
+    model = Users
 
-    async def get_user(self, username: str, email: str) -> User | None:
+    async def get_user(self, username: str, email: str) -> Users | None:
         stmt = (select(self.model)
         .where(
             or_(
@@ -53,7 +53,7 @@ class UserRepository(SQLAlchemyRepository):
             skip: int,
             limit: int,
             **filter_by: dict[str, str]
-    ) -> Sequence[User]:
+    ) -> Sequence[Users]:
         stmt = (select(self.model)
                 .filter_by(**filter_by)
                 .limit(limit)

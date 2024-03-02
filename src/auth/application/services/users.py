@@ -1,4 +1,4 @@
-from auth.adapters.sqlalchemy_db.models import User
+from auth.adapters.sqlalchemy_db.models import Users
 from auth.application.exceptions import (
     InvalidEmailException,
     InvalidUsernameException,
@@ -25,7 +25,6 @@ class UserService:
                 raise InvalidEmailException(
                     'Пользователь с такой почтой уже существует.'
                 )
-
             schema.password = get_password_hash(schema.password)
             user = await self._get_user(
                 uow,
@@ -96,7 +95,7 @@ class UserService:
             user.is_active = False
             await uow.commit()
 
-    async def _clear_token(self, uow: UoWDatabase, user: User) -> None:
+    async def _clear_token(self, uow: UoWDatabase, user: Users) -> None:
         if user.token:
             await uow.tokens.delete_one(user_id=user.id)
 
@@ -105,7 +104,7 @@ class UserService:
             uow: UoWDatabase,
             username: str,
             email: str
-    ) -> User:
+    ) -> Users:
         return await uow.users.get_user(username=username, email=email)
 
     async def _check_username_exists(

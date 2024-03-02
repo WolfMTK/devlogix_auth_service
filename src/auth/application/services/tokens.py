@@ -3,7 +3,7 @@ from uuid import uuid5, uuid4
 
 from redis.asyncio.client import Pipeline
 
-from auth.adapters.sqlalchemy_db.models import Token, User
+from auth.adapters.sqlalchemy_db.models import Tokens, Users
 from auth.application.exceptions import (
     InvalidDataException,
     EmptyDataException,
@@ -40,7 +40,7 @@ class TokenService:
             if user.token:
                 user.token.name = refresh_token
             else:
-                user.token = Token(name=refresh_token)
+                user.token = Tokens(name=refresh_token)
             await uow.commit()
             await redis.set(
                 f'access-token::{user.id}', access_token,
@@ -152,7 +152,7 @@ class TokenService:
     async def _check_user_correct_data(
             self, uow: UoWDatabase,
             schema: UserLogin
-    ) -> User:
+    ) -> Users:
         if schema.username and schema.email:
             raise InvalidDataException('Введите username или email.')
 

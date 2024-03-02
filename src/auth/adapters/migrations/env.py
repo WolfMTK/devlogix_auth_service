@@ -6,8 +6,8 @@ from sqlalchemy import pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
+from auth.adapters.sqlalchemy_db.models import Base
 from auth.core import Settings
-from auth.domain.models import Base
 
 config = context.config
 config.set_main_option('sqlalchemy.url', Settings.db_url)
