@@ -60,10 +60,13 @@ class UserLogin(UserBase):
 
 class UserGet(UserBase):
     """Схема получения пользователя."""
-    id: int = Field(..., description='Уникальный индентификатор пользователя')
+    id: int | None = Field(
+        None,
+        description='Уникальный индентификатор пользователя'
+    )
     first_name: str | None = Field(None, description='Имя')
     last_name: str | None = Field(None, description='Фамилия')
-    is_active: bool = Field(..., description='Статус пользователя')
+    is_active: bool | None = Field(None, description='Статус пользователя')
 
 
 class UserUpdate(UserBase):
