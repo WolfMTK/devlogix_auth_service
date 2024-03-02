@@ -162,3 +162,7 @@ cython_debug/
 
 # db
 *.db
+
+# pytest
+tests
+pytest.ini

@@ -1,7 +1,0 @@
-*/venv
-*/env
-*/.idea
-*/logs
-*/.gitignore
-*/__pycache__
-*/poetry.lock
