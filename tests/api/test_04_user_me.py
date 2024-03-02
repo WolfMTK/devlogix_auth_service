@@ -9,7 +9,7 @@ from httpx import AsyncClient
         'data': {
             'username': 'UserTestAdmin',
             'email': 'usertest@test.com',
-            'is_active': True
+            'isActive': True
         }
     },
     {
@@ -18,7 +18,7 @@ from httpx import AsyncClient
         'data': {
             'username': 'UserTestAdmin',
             'email': 'usertest@test.com',
-            'is_active': True
+            'isActive': True
         }
     }
 ])
@@ -31,7 +31,7 @@ async def test_01_user_me(async_client: AsyncClient,
         'При получении токенов должен возвращаться статус-код 200.'
     )
     data = response.json()
-    access_token = data['access_token']
+    access_token = data['accessToken']
     response = await async_client.get(
         '/users/me/',
         headers={'authorization': 'Bearer ' + access_token}

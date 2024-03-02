@@ -20,7 +20,7 @@ async def test_01_login_user(async_client: AsyncClient,
     )
     data = response.json()
     keys = sorted(
-        ['access_token', 'expires_in', 'refresh_token', 'token_type']
+        ['accessToken', 'expiresIn', 'refreshToken', 'tokenType']
     )
     assert sorted(list(data.keys())) == keys, (
         f'При получении токенов в ответе должны быть ключи {keys}'
@@ -55,7 +55,7 @@ async def test_02_invalid_email_login_user(
         'При некорректном получении токенов '
         'в ответе должен быть ключ `detail`.'
     )
-    assert type(data['detail']) == list, (
+    assert isinstance(data['detail'], list), (
         'При некорректном получении токенов '
         'в ответе должно быть значение списком.'
     )

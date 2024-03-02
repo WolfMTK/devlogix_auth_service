@@ -17,7 +17,7 @@ async def test_01_logout_user(async_client: AsyncClient,
         'При получении токенов должен возвращаться статус-код 200.'
     )
     data = response.json()
-    access_token = data['access_token']
+    access_token = data['accessToken']
     response = await async_client.post(
         '/auth/token/logout/',
         headers={'authorization': 'Bearer ' + access_token}

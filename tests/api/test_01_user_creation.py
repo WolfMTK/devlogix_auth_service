@@ -14,14 +14,14 @@ async def test_01_register_user(async_client: AsyncClient) -> None:
         'При регистрации пользователя должен возвращаться статус-код 201.'
     )
     data = response.json()
-    keys = sorted(['id', 'username', 'email', 'is_active'])
+    keys = sorted(['id', 'username', 'email', 'isActive'])
     assert sorted(list(data.keys())) == keys, (
         f'При регистрации пользователя в ответе должны быть ключи {keys}'
     )
     del data['id']
     assert data == {'username': 'UserTestAdmin',
                     'email': 'usertest@test.com',
-                    'is_active': True}, (
+                    'isActive': True}, (
         'При регистрации пользователя тело ответа '
         'API отличается от ожидаемого.'
     )

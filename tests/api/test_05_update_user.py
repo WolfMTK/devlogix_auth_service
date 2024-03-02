@@ -5,15 +5,15 @@ from httpx import AsyncClient
 @pytest.mark.parametrize('json', [
     {'login': {'username': 'UserTestAdmin',
                'password': 'testPassword12_'},
-     'data': {'first_name': 'Иван',
+     'data': {'firstName': 'Иван',
               'email': 'usertest@test.com',
-              'last_name': 'Иванович',
+              'lastName': 'Иванович',
               'username': 'UserTestAdmin2',
               'password': 'testPassword12_2'}},
     {'login': {'email': 'usertest@test.com',
                'password': 'testPassword12_'},
-     'data': {'first_name': 'Иван',
-              'last_name': 'Иванович',
+     'data': {'firstName': 'Иван',
+              'lastName': 'Иванович',
               'email': 'usertest2@test.com',
               'username': 'UserTestAdmin',
               'password': 'testPassword12_2'}}
@@ -27,7 +27,7 @@ async def test_01_update_user(async_client: AsyncClient,
         'При получении токенов должен возвращаться статус-код 200.'
     )
     data = response.json()
-    access_token = data['access_token']
+    access_token = data['accessToken']
     response = await async_client.patch(
         '/users/me/',
         headers={'authorization': 'Bearer ' + access_token},
@@ -39,12 +39,12 @@ async def test_01_update_user(async_client: AsyncClient,
     data = response.json()
     password = json['data']['password']
     del json['data']['password']
-    keys = sorted(list(json['data'].keys()) + ['id', 'is_active'])
+    keys = sorted(list(json['data'].keys()) + ['id', 'isActive'])
     assert sorted(list(data.keys())) == keys, (
         f'При обновлении пользователя в ответе должны быть ключи {keys}'
     )
     del data['id']
-    assert data == json['data'] | {'is_active': True}, (
+    assert data == json['data'] | {'isActive': True}, (
         'При регистрации пользователя тело ответа '
         'API отличается от ожидаемого.'
     )
@@ -56,7 +56,7 @@ async def test_01_update_user(async_client: AsyncClient,
         'При получении токенов должен возвращаться статус-код 200.'
     )
     data = response.json()
-    access_token = data['access_token']
+    access_token = data['accessToken']
 
     if json['login'].get('username'):
         response = await async_client.patch(
