@@ -1,9 +1,17 @@
 from pydantic import BaseModel, EmailStr, field_validator, Field, ConfigDict
+from pydantic.alias_generators import to_camel
 
 from auth.core.validations import PasswordValidate, UsernameValidate
 
 
 class UserBase(BaseModel):
+    """Базовая схема пользователей."""
+    model_config = ConfigDict(
+        alias_generator=to_camel,
+        populate_by_name=True,
+        from_attributes=True
+    )
+
     username: str | None = Field(
         None, max_length=120, description='Юзернейм'
     )
@@ -14,6 +22,12 @@ class UserBase(BaseModel):
 
 class UserCreate(BaseModel):
     """Схема регистрации пользователя."""
+    model_config = ConfigDict(
+        alias_generator=to_camel,
+        populate_by_name=True,
+        from_attributes=True
+    )
+
     username: str = Field(
         ..., max_length=120, description='Юзернейм'
     )
@@ -46,8 +60,6 @@ class UserLogin(UserBase):
 
 class UserGet(UserBase):
     """Схема получения пользователя."""
-    model_config = ConfigDict(from_attributes=True)
-
     id: int = Field(..., description='Уникальный индентификатор пользователя')
     first_name: str | None = Field(None, description='Имя')
     last_name: str | None = Field(None, description='Фамилия')
