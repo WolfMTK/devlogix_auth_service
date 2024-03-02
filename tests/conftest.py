@@ -11,13 +11,17 @@ try:
 except (NameError, ImportError):
     raise AssertionError('Не обнаружен объект `app`.')
 try:
-    from auth.infrastructure.db import Base
+    from auth.domain.models import Base
 except (NameError, ImportError):
     raise AssertionError('Не обнаружен объект `Base`')
 try:
-    from auth.application.protocols.unit_of_work import UnitOfWork, UoW
+    from auth.adapters.sqlalchemy_db.database import Session
 except (NameError, ImportError):
-    raise AssertionError('Не обнаружен объекты `UnitOfWork`, `UoW`.')
+    raise AssertionError('Не обнаружен объекты `Session`.')
+try:
+    from auth.application.protocols.database import UoWDatabase
+except (NameError, ImportError):
+    raise AssertionError('Не обнаружен объекты `UoWDatabase`.')
 
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
 
@@ -27,8 +31,10 @@ engine = create_async_engine(
     SQLALCHEMY_DATABASE_URI,
     connect_args={'check_same_thread': False},
 )
-testing_async_session_maker = async_sessionmaker(engine,
-                                                 expire_on_commit=False)
+testing_async_session_maker = async_sessionmaker(
+    engine,
+    expire_on_commit=False
+)
 
 metadata = Base.metadata
 metadata.bind = engine
@@ -49,12 +55,14 @@ def event_loop():
     yield loop
     loop.close()
 
+
 pytest_plugins = ['tests.fixtures.functions']
+
 
 @pytest.fixture(scope='session')
 async def async_client():
-    app.dependency_overrides[UoW] = partial(
-        UnitOfWork,
+    app.dependency_overrides[UoWDatabase] = partial(
+        Session,
         testing_async_session_maker
     )
     async with AsyncClient(app=app, base_url='http://test') as client:
