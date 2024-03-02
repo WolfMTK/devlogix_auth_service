@@ -4,12 +4,12 @@ RESPONSE_LOGIN_EXAMPLE = {
         'content': {
             'application/json': {
                 'example': {
-                    'access_token':
+                    'accessToken':
                         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9'
                         '.eyJzdWIiOiJVc2VyQWRtaW4iLCJkYXRlIjoiMjAyNC0wMi0wNCAxNzozOToxMC43NjI1NzMiLCJleHAiOjE3MDcwNTc1NTB9.utFkx8oFaTEYfDStUmQV2lM7yK51IK87cjxVbqZCk0k',
-                    'expires_in': 600,
-                    'refresh_token': 'cc9583a2-85d7-504a-b518-b0d86506b749',
-                    'token_type': 'Bearer'
+                    'expiresIn': 600,
+                    'refreshToken': 'cc9583a2-85d7-504a-b518-b0d86506b749',
+                    'tokenType': 'Bearer'
                 }
             }
         }

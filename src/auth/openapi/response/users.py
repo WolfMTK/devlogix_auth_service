@@ -7,7 +7,7 @@ RESPONSE_USER_CREATE_EXAMPLE = {
                     'id': 1,
                     'username': 'UserAdmin',
                     'email': 'user@mail.com',
-                    'is_active': True
+                    'isActive': True
                 }
             }
         }
@@ -149,7 +149,7 @@ RESPONSE_USER_GET_EXAMPLE = {
                     'id': 1,
                     'username': 'UserAdmin',
                     'email': 'user@mail.com',
-                    'is_active': True
+                    'isActive': True
                 }
             }
         }
@@ -175,9 +175,9 @@ RESPONSE_USER_UPDATE_EXAMPLE = {
                     'id': 1,
                     'username': 'UserAdmin',
                     'email': 'user@mail.com',
-                    'first_name': 'Иван',
-                    'last_name': 'Иванович',
-                    'is_active': True
+                    'firstName': 'Иван',
+                    'lastName': 'Иванович',
+                    'isActive': True
                 }
             }
         }
