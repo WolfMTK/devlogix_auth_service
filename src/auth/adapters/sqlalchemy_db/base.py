@@ -23,7 +23,7 @@ class SQLAlchemyRepository(AbstractRepository):
         """Добавление записи в БД."""
         stmt = insert(self.model).values(**kwargs).returning(self.model)
         result = await self.session.execute(stmt)
-        return result.scalar_one()
+        return result.unique().scalar_one()
 
     async def update_one(self, id: int, **kwargs) -> ModelType:
         """Обновление записи в БД."""
@@ -31,13 +31,13 @@ class SQLAlchemyRepository(AbstractRepository):
             self.model.id == id
         ).values(**kwargs).returning(self.model)
         result = await self.session.execute(stmt)
-        return result.scalar_one()
+        return result.unique().scalar_one()
 
     async def find_one(self, **filter_by: dict[str, Any]) -> ModelType | None:
         """Поиск записи в БД."""
         stmt = select(self.model).filter_by(**filter_by)
         result = await self.session.execute(stmt)
-        return result.scalar_one_or_none()
+        return result.unique().scalar_one_or_none()
 
     async def find_all(
             self, order_by: str | None = None
@@ -45,7 +45,7 @@ class SQLAlchemyRepository(AbstractRepository):
         """Поиск записей в БД."""
         stmt = select(self.model).order_by(order_by)
         result = await self.session.execute(stmt)
-        return result.scalars().all()
+        return result.unique().scalars().all()
 
     async def delete_one(self, **filter_by: dict[str, Any]) -> None:
         """Удаление записи в БД."""
