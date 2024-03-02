@@ -1,4 +1,4 @@
-from auth.application.protocols.repository import SQLAlchemyRepository
+from auth.adapters.sqlalchemy_db.base import SQLAlchemyRepository
 from auth.domain.models import Token
 
 

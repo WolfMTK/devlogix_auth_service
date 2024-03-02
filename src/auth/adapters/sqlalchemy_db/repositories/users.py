@@ -2,7 +2,7 @@ from typing import Sequence
 
 from sqlalchemy import select, and_, or_
 
-from auth.application.protocols.repository import SQLAlchemyRepository
+from auth.adapters.sqlalchemy_db.base import SQLAlchemyRepository
 from auth.domain.models import User
 
 
