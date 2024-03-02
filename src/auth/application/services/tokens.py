@@ -1,7 +1,9 @@
 import datetime as dt
 from uuid import uuid5, uuid4
+
 from redis.asyncio.client import Pipeline
-from auth.application.protocols.unit_of_work import UoW
+
+from auth.application.protocols.database import UoWDatabase
 from auth.application.services.exceptions import (
     InvalidDataException,
     EmptyDataException,
@@ -18,7 +20,7 @@ from auth.domain.schemas import UserLogin, TokenGet, TokenUpdate
 class TokenService:
     async def get_token(
             self,
-            uow: UoW,
+            uow: UoWDatabase,
             redis: Pipeline,
             schema: UserLogin
     ) -> TokenGet:
@@ -48,7 +50,7 @@ class TokenService:
 
     async def update_access_token(
             self,
-            uow: UoW,
+            uow: UoWDatabase,
             redis: Pipeline,
             schema: TokenUpdate
     ) -> TokenGet:
@@ -79,7 +81,7 @@ class TokenService:
 
     async def update_refresh_token(
             self,
-            uow: UoW,
+            uow: UoWDatabase,
             redis: Pipeline,
             schema: TokenUpdate
     ):
@@ -113,7 +115,7 @@ class TokenService:
 
     async def delete_token(
             self,
-            uow: UoW,
+            uow: UoWDatabase,
             redis: Pipeline,
             id: int
     ):
@@ -145,7 +147,7 @@ class TokenService:
         await redis.execute()
 
     async def _check_user_correct_data(
-            self, uow: UoW,
+            self, uow: UoWDatabase,
             schema: UserLogin
     ) -> User:
         if schema.username and schema.email:
