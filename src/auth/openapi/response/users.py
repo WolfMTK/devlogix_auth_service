@@ -308,3 +308,29 @@ RESPONSE_USER_UPDATE_EXAMPLE = {
         }
     }
 }
+
+RESPONSE_SEARCH_USER_EXAMPLE = {
+    200: {
+        'description': 'Данные успешно получены',
+        'content': {'application/json':
+            {
+                'example': {
+                    'id': 1,
+                    'username': 'UserAdmin',
+                    'email': 'user@mail.com',
+                    'isActive': True
+                }
+            }
+        }
+    },
+    401: {
+        'description': 'Пользователь неавторизован',
+        'content': {
+            'application/json': {
+                'example': {
+                    'detail': 'Не удалось подтвердить данные.'
+                }
+            }
+        }
+    }
+}
