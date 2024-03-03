@@ -12,12 +12,13 @@ from auth.application.exceptions import (
 )
 from auth.application.models import UserLogin, TokenGet, TokenUpdate
 from auth.application.protocols.database import UoWDatabase
+from auth.application.services.base import BaseService
 from auth.core import Settings
 from auth.core.jwt import create_token
 from auth.core.password import verify_password
 
 
-class TokenService:
+class TokenService(BaseService):
     def __init__(self):
         self._time_access_token = dt.timedelta(
             minutes=int(Settings.time_access_token)
@@ -32,6 +33,8 @@ class TokenService:
         """Получение токена."""
         async with uow:
             user = await self._check_user_correct_data(uow, schema)
+            if banned_user := user.banned_users:
+                self._check_user_banned(banned_user.end_date_block)
             access_token = self._create_access_token(
                 user.username,
                 [role.name for role in user.roles if role],
@@ -66,6 +69,8 @@ class TokenService:
             token = await uow.tokens.find_one(name=schema.refresh_token)
             if not token:
                 raise InvalidTokenException()
+            if banned_user := token.user.banned_users:
+                self._check_user_banned(banned_user.end_date_block)
             access_token = self._create_access_token(
                 token.user.username,
                 [role.name for role in token.user.roles if role],
@@ -95,6 +100,8 @@ class TokenService:
             token = await uow.tokens.find_one(name=schema.refresh_token)
             if not token:
                 raise InvalidTokenException()
+            if banned_user := token.user.banned_users:
+                self._check_user_banned(banned_user.end_date_block)
             username = token.user.username
             token.name = self._create_refresh_token(username)
             access_token = self._create_access_token(
@@ -159,7 +166,8 @@ class TokenService:
         await redis.execute()
 
     async def _check_user_correct_data(
-            self, uow: UoWDatabase,
+            self,
+            uow: UoWDatabase,
             schema: UserLogin
     ) -> Users:
         if schema.username and schema.email:

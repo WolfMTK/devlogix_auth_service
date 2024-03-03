@@ -1,20 +1,18 @@
-import datetime as dt
 import uuid
-from zoneinfo import ZoneInfo
 
 from auth.adapters.sqlalchemy_db.models import Users
 from auth.application.exceptions import (
     InvalidEmailException,
     InvalidUsernameException,
-    EmptyUserException, UserBannedException,
+    EmptyUserException,
 )
 from auth.application.models.users import UserCreate, UserGet, UserUpdate
 from auth.application.protocols.database import UoWDatabase
-from auth.core.constants import TIMEZONE
+from auth.application.services.base import BaseService
 from auth.core.password import get_password_hash
 
 
-class UserService:
+class UserService(BaseService):
     async def register_user(
             self,
             uow: UoWDatabase,
@@ -55,13 +53,7 @@ class UserService:
             if not (user := await uow.users.find_one(username=username)):
                 raise EmptyUserException()
             if banned_user := user.banned_users:
-                if (banned_user.end_date_block.timestamp() >= dt.datetime.now(
-                        tz=ZoneInfo(TIMEZONE)
-                ).timestamp()):
-                    raise UserBannedException(
-                        'Пользователь заблокирован до '
-                        f'{banned_user.end_date_block.strftime("%Y-%m-%d")}.'
-                    )
+                self._check_user_banned(banned_user.end_date_block)
             if user.token:
                 return user.to_read_model()
             raise EmptyUserException()
