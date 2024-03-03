@@ -34,3 +34,7 @@ class InvalidTokenException(AuthException):
 
     def __str__(self) -> str:
         return 'Невалидный токен.'
+
+
+class UserBannedException(AuthException):
+    """User banned exception."""
