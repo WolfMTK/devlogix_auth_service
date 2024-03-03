@@ -1,5 +1,5 @@
 from datetime import datetime
-
+import uuid
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -14,7 +14,7 @@ class Tokens(Base):
         index=True
     )
     created_at: Mapped[datetime] = mapped_column(default=datetime.now())
-    user_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
+    user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey('users.id'))
     user: Mapped['Users'] = relationship(
         back_populates='token',
         lazy='selectin'

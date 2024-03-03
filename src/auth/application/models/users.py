@@ -1,3 +1,5 @@
+import uuid
+
 from pydantic import BaseModel, EmailStr, field_validator, Field, ConfigDict
 from pydantic.alias_generators import to_camel
 
@@ -60,7 +62,7 @@ class UserLogin(UserBase):
 
 class UserGet(UserBase):
     """Схема получения пользователя."""
-    id: int | None = Field(
+    id: uuid.UUID | None = Field(
         None,
         description='Уникальный индентификатор пользователя'
     )

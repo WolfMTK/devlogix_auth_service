@@ -11,7 +11,6 @@ from auth.application.models.users import UserGet
 
 class Users(Base):
     """Модель пользователей."""
-    id: Mapped[int] = mapped_column(primary_key=True)
     first_name: Mapped[str] = mapped_column(nullable=True)
     last_name: Mapped[str] = mapped_column(nullable=True)
     username: Mapped[str] = mapped_column(
