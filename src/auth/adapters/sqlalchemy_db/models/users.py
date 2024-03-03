@@ -1,4 +1,5 @@
 import datetime as dt
+import uuid
 
 from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -11,6 +12,10 @@ from auth.application.models.users import UserGet
 
 class Users(Base):
     """Модель пользователей."""
+    id: Mapped[uuid.UUID] = mapped_column(
+        primary_key=True, index=True,
+        default=uuid.uuid4
+    )
     first_name: Mapped[str] = mapped_column(nullable=True)
     last_name: Mapped[str] = mapped_column(nullable=True)
     username: Mapped[str] = mapped_column(
