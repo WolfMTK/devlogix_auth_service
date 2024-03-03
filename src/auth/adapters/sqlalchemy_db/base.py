@@ -1,3 +1,4 @@
+import uuid
 from collections.abc import Sequence
 from typing import Any
 
@@ -25,7 +26,7 @@ class SQLAlchemyRepository(AbstractRepository):
         result = await self.session.execute(stmt)
         return result.unique().scalar_one()
 
-    async def update_one(self, id: int, **kwargs) -> ModelType:
+    async def update_one(self, id: int | uuid.UUID, **kwargs) -> ModelType:
         """Обновление записи в БД."""
         stmt = update(self.model).filter(
             self.model.id == id
