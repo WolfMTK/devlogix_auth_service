@@ -1,4 +1,4 @@
-from fastapi import APIRouter, status, Body, HTTPException
+from fastapi import APIRouter, status, Body, HTTPException, Query
 from fastapi import Depends
 
 from auth.api.permissions import get_current_active_user
@@ -14,6 +14,7 @@ from auth.openapi.response import (
     RESPONSE_USER_GET_EXAMPLE,
     RESPONSE_USER_UPDATE_EXAMPLE, RESPONSE_USER_CREATE_EXAMPLE,
 )
+from auth.openapi.response.users import RESPONSE_SEARCH_USER_EXAMPLE
 
 router = APIRouter(prefix='/users', tags=['users'])
 
@@ -114,6 +115,27 @@ async def read_users(
 ):
     """Получение пользователей."""
     return await UserService().get_users(uow, skip, limit)
+
+
+@router.get(
+    '/search/',
+    name='Поиск пользователей',
+    response_model=list[UserGet],
+    response_model_exclude_none=True,
+    responses=RESPONSE_SEARCH_USER_EXAMPLE,
+    dependencies=[Depends(get_current_active_user)],
+
+)
+async def search_users(
+        uow: UoWDatabase = Depends(),
+        query: str = Query(
+            ...,
+            description='Поиск по пользователям '
+                        '(поддерживается поиск по username)'
+        )
+):
+    """Поиск по пользователям."""
+    return await UserService().search_users(uow, query)
 
 
 @router.delete(

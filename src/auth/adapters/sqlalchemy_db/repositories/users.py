@@ -1,6 +1,7 @@
+import uuid
 from typing import Sequence
 
-from sqlalchemy import select, and_, or_
+from sqlalchemy import select, and_, or_, ScalarResult
 
 from auth.adapters.sqlalchemy_db.base import SQLAlchemyRepository
 from auth.adapters.sqlalchemy_db.models import Users
@@ -9,9 +10,18 @@ from auth.adapters.sqlalchemy_db.models import Users
 class UserRepository(SQLAlchemyRepository):
     model = Users
 
+    async def search_user(self, username: str) -> ScalarResult:
+        stmt = select(self.model).filter(
+            and_(
+                self.model.username.contains(username),
+                self.model.is_active == True  # noqa: E712
+            )
+        )
+        result = await self.session.execute(stmt)
+        return result.unique().scalars()
+
     async def get_user(self, username: str, email: str) -> Users | None:
-        stmt = (select(self.model)
-        .where(
+        stmt = (select(self.model).where(
             or_(
                 self.model.username == username,
                 self.model.email == email
@@ -26,7 +36,7 @@ class UserRepository(SQLAlchemyRepository):
                 .filter_by(**filter_by).exists())
         return await self.session.scalar(select(stmt))
 
-    async def check_username_user(self, id: int, username: str) -> bool:
+    async def check_username_user(self, id: uuid.UUID, username: str) -> bool:
         stmt = (select(self.model)
                 .filter(
             and_(
@@ -37,7 +47,7 @@ class UserRepository(SQLAlchemyRepository):
                 .exists())
         return await self.session.scalar(select(stmt))
 
-    async def check_email_user(self, id: int, email: str) -> bool:
+    async def check_email_user(self, id: uuid.UUID, email: str) -> bool:
         stmt = (select(self.model)
                 .filter(
             and_(

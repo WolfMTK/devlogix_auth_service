@@ -1,3 +1,5 @@
+import uuid
+
 from auth.adapters.sqlalchemy_db.models import Users
 from auth.application.exceptions import (
     InvalidEmailException,
@@ -66,7 +68,7 @@ class UserService:
 
     async def update_me(
             self, uow: UoWDatabase,
-            user_id: int,
+            user_id: uuid.UUID,
             schema: UserUpdate
     ) -> UserGet:
         """Обновление пользователя."""
@@ -88,12 +90,22 @@ class UserService:
             await uow.commit()
             return user.to_read_model()
 
-    async def delete_me(self, uow: UoWDatabase, user_id: int) -> None:
+    async def delete_me(self, uow: UoWDatabase, user_id: uuid.UUID) -> None:
         """Удаление пользователя."""
         async with uow:
             user = await uow.users.find_one(id=user_id)
             user.is_active = False
             await uow.commit()
+
+    async def search_users(
+            self,
+            uow: UoWDatabase,
+            username: str
+    ) -> list[UserGet]:
+        """Поиск по пользователям."""
+        async with uow:
+            users = await uow.users.search_user(username)
+            return [user.to_read_model() for user in users]
 
     async def _clear_token(self, uow: UoWDatabase, user: Users) -> None:
         if user.token:
