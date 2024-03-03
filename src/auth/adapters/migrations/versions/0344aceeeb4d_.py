@@ -60,7 +60,7 @@ def upgrade() -> None:
         sa.Column('name', sa.String(), nullable=False),
         sa.Column('created_at', sa.DateTime(), nullable=False),
         sa.Column('user_id', sa.Uuid(), nullable=False),
-        sa.Column('id', sa.Uuid(), nullable=False),
+        sa.Column('id', sa.Integer(), nullable=False),
         sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
         sa.PrimaryKeyConstraint('id')
     )
