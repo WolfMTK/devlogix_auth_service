@@ -3,7 +3,10 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jwt import PyJWTError
 from redis.asyncio.client import AbstractRedis, Pipeline
 
-from auth.application.exceptions import EmptyUserException
+from auth.application.exceptions import (
+    EmptyUserException,
+    UserBannedException,
+)
 from auth.application.models import UserGet, TokenData
 from auth.application.protocols.database import UoWDatabase
 from auth.application.services import UserService
@@ -36,6 +39,9 @@ async def get_current_user(
             raise credentials_exception
         return user
     except (PyJWTError, AttributeError, EmptyUserException):
+        raise credentials_exception
+    except UserBannedException as error:
+        credentials_exception.detail = str(error)
         raise credentials_exception
 
 
