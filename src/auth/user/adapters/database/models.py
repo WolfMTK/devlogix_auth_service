@@ -1,20 +1,30 @@
-from sqlalchemy import Table, Column, String, UUID, Boolean
-from sqlalchemy.orm import registry
 import uuid
 
+from email_validator import validate_email, EmailNotValidError
+from sqlalchemy.orm import Mapped, mapped_column, validates, relationship
+
 from auth.common.adapters.database.models import Base
-from auth.user.domain.models.user import User
+from auth.core.constants import EMAIL_LENGTH
 
-mapper_registry = registry()
 
-user = Table(
-    'user',
-    Base.metadata,
-    Column('id', UUID, primary_key=True, default=uuid.uuid4),
-    Column('username', String(), nullable=False, index=True),
-    Column('email', String(), nullable=False, index=True),
-    Column('password', String(), nullable=False),
-    Column('is_active', Boolean(), default=True, nullable=False)
-)
+class User(Base):
+    __tablename__ = 'user'
+    id: Mapped[uuid.UUID] = mapped_column(
+        primary_key=True,
+        default=uuid.uuid4
+    )
+    username: Mapped[str] = mapped_column(nullable=False, index=True)
+    email: Mapped[str] = mapped_column(nullable=False, index=True)
+    password: Mapped[str] = mapped_column(nullable=False)
+    is_active: Mapped[bool] = mapped_column(default=True, nullable=False)
+    token = relationship('Token', back_populates='user')
 
-mapper_registry.map_imperatively(User, user)
+    @validates('email')
+    def validate_email(self, _: str, email: str) -> str:
+        if len(email) > EMAIL_LENGTH:
+            raise ValueError('The allowed length for E-mail is exceeded.')
+        try:
+            validate_email(email, check_deliverability=False)
+        except EmailNotValidError:
+            raise ValueError('The value for the email field is invalid.')
+        return email

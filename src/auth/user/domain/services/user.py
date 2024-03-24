@@ -1,8 +1,8 @@
+from auth.user.adapters.database.models import User
 from auth.user.domain.exceptions.user import (
     InvalidEmailException,
     InvalidUsernameException, EmptyUsernameException, InactiveUserException,
 )
-from auth.user.domain.models.user import User
 
 
 class UserService:

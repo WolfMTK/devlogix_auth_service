@@ -3,8 +3,8 @@ from typing import Any
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from auth.user.adapters.database.models import User
 from auth.user.adapters.stub_db import StubUserGateway
-from auth.user.domain.models.user import User
 
 
 class UserGateway(StubUserGateway):

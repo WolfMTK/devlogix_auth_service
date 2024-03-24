@@ -5,13 +5,13 @@ from fastapi import APIRouter, Depends, status, Body, HTTPException
 from auth.common.adapters.security.permissions import PermissionBearerProvider
 from auth.common.application.protocols.permissions import BearerProvider
 from auth.common.presentation.dependencies.password import get_hashed_password
-from auth.user.application.create_user import NewUserDTO, NewUserResultDTO
+from auth.user.application.create_user import UserDTO
 from auth.user.application.get_me import UserMeDTO
 from auth.user.domain.exceptions.user import (
     InvalidEmailException,
     InvalidUsernameException, EmptyUsernameException, InactiveUserException,
 )
-from auth.user.domain.models.user import UserResult
+from auth.user.domain.models.user import UserResultDTO
 from auth.user.openapi.create_user import (
     RESPONSE_USER_CREATE_EXAMPLE,
     BODY_USER_CREATE_EXAMPLE,
@@ -25,13 +25,13 @@ router = APIRouter(prefix='/users', tags=['users'])
 @router.post(
     '/',
     name='Register a new user',
-    response_model=NewUserResultDTO,
+    response_model=UserResultDTO,
     response_model_exclude_none=True,
     status_code=status.HTTP_201_CREATED,
     responses=RESPONSE_USER_CREATE_EXAMPLE
 )
 async def create_user(
-        user: NewUserDTO = Body(..., example=BODY_USER_CREATE_EXAMPLE),
+        user: UserDTO = Body(..., example=BODY_USER_CREATE_EXAMPLE),
         ioc: UserInteractorFactory = Depends(),
         hashed_password: Callable[[str | bytes], str] = Depends(
             get_hashed_password
@@ -63,7 +63,7 @@ async def create_user(
 @router.get(
     '/me/',
     name='About me',
-    response_model=UserResult,
+    response_model=UserResultDTO,
     response_model_exclude_none=True,
     responses=RESPONSE_USER_GET_EXAMPLE
 )
@@ -71,6 +71,7 @@ async def read_user_me(
         ioc: UserInteractorFactory = Depends(),
         bearer: BearerProvider = Depends(PermissionBearerProvider)
 ):
+    """About me"""
     username = await bearer.get_username()
     try:
         async with ioc.get_user_me() as get_user_me_interactor:

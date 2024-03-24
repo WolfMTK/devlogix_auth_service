@@ -4,6 +4,10 @@ from contextlib import asynccontextmanager, AbstractAsyncContextManager
 from fastapi import Depends
 
 from auth.common.application.protocols.uow import UoW
+from auth.token.adapters.stub_db import StubTokenGateway
+from auth.token.application.create_token import CreateToken
+from auth.token.domain.services.token import TokenService
+from auth.token.presentation.interactor_factory import TokenInteractorFactory
 from auth.user.adapters.stub_db import StubUserGateway
 from auth.user.application.create_user import CreateUser
 from auth.user.application.get_me import GetUserMe
@@ -16,7 +20,7 @@ class UserIOC(UserInteractorFactory):
             self,
             uow: UoW = Depends(),
             gateway: StubUserGateway = Depends(),
-    ):
+    ) -> None:
         self.gateway = gateway
         self.uow = uow
         self.user_service = UserService()
@@ -35,4 +39,23 @@ class UserIOC(UserInteractorFactory):
             uow=self.uow,
             user_db_gateway=self.gateway,
             user_service=self.user_service
+        )
+
+
+class TokeIOC(TokenInteractorFactory):
+    def __init__(
+            self,
+            uow: UoW = Depends(),
+            gateway: StubTokenGateway = Depends(),
+    ) -> None:
+        self.uow = uow
+        self.gateway = gateway
+        self.token_service = TokenService()
+
+    @asynccontextmanager
+    async def create_token(self) -> AsyncIterator[CreateToken]:
+        yield CreateToken(
+            uow=self.uow,
+            token_db_gateway=self.gateway,
+            token_service=self.token_service
         )

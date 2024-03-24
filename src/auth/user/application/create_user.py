@@ -1,28 +1,12 @@
-from dataclasses import dataclass
-
 from auth.common.application.protocols.interactor import Interactor
 from auth.common.application.protocols.uow import UoW
+from auth.user.adapters.database.models import User
 from auth.user.adapters.stub_db import StubUserGateway
-from auth.user.domain.models.user import User
-from auth.user.domain.models.user_id import UserID
+from auth.user.domain.models.user import UserDTO, UserResultDTO
 from auth.user.domain.services.user import UserService
 
 
-@dataclass
-class NewUserDTO:
-    username: str
-    email: str
-    password: str
-
-
-@dataclass
-class NewUserResultDTO:
-    id: UserID
-    email: str
-    username: str
-
-
-class CreateUser(Interactor[NewUserDTO, NewUserResultDTO]):
+class CreateUser(Interactor[UserDTO, UserResultDTO]):
     def __init__(
             self,
             uow: UoW,
@@ -33,7 +17,7 @@ class CreateUser(Interactor[NewUserDTO, NewUserResultDTO]):
         self.user_db_gateway = user_db_gateway
         self.user_service = user_service
 
-    async def __call__(self, user: NewUserDTO) -> NewUserResultDTO:
+    async def __call__(self, user: UserDTO) -> UserResultDTO:
         self.user_service.check_email_exists(
             await self.user_db_gateway.check_user(email=user.email)
         )
@@ -58,7 +42,7 @@ class CreateUser(Interactor[NewUserDTO, NewUserResultDTO]):
         await self.user_db_gateway.create_user(model)
 
         await self.uow.commit()
-        return NewUserResultDTO(
+        return UserResultDTO(
             id=model.id,
             email=model.email,
             username=model.username

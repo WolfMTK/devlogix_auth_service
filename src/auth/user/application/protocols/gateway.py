@@ -1,7 +1,7 @@
 from abc import abstractmethod
 from typing import Protocol, Any
 
-from auth.user.domain.models.user import User
+from auth.user.adapters.database.models import User
 
 
 class UserCreated(Protocol):
@@ -12,7 +12,7 @@ class UserCreated(Protocol):
 
 class UserCheck(Protocol):
     @abstractmethod
-    async def check_user(self, **filter_by: Any) -> bool:
+    async def check_user(self, *args,  **filter_by: Any) -> bool:
         raise NotImplementedError
 
 

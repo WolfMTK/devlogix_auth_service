@@ -60,6 +60,5 @@ def init_dependencies(app: FastAPI):
             UoW: new_uow,
             PasswordProvider: PasswordCryptoProvider,
             TokenProvider: lambda: jwt,
-            # BearerProvider: PermissionBearerProvider
         }
     )
