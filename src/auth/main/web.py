@@ -1,17 +1,20 @@
 from fastapi import FastAPI
-from fastapi.exceptions import RequestValidationError
 
+from auth.core.base import Base  # noqa
+from auth.main.ioc import UserIOC
+from auth.user.adapters.stub_db import StubUserGateway
+from auth.user.presentation.dependencies.gateway import new_user_gateway
+from auth.user.presentation.interactor_factory import UserInteractorFactory
+from auth.user.presentation.web.users import router
 from .di import init_dependencies
-from .exception_handler import custom_exception_handler
-from .routers import init_routers
 
 
 def create_app() -> FastAPI:
     app = FastAPI()
     init_dependencies(app)
-    app.exception_handler(RequestValidationError)(custom_exception_handler)
-    init_routers(app)
+    app.dependency_overrides.update(
+        {StubUserGateway: new_user_gateway,
+         UserInteractorFactory: UserIOC}
+    )
+    app.include_router(router)
     return app
-
-
-app = create_app()

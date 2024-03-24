@@ -1,33 +1,65 @@
+from collections.abc import AsyncIterator
 from functools import partial
+from typing import TypeVar, Callable
 
-import redis.asyncio as aioredis
-from fastapi import FastAPI
-from redis.client import AbstractRedis
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
+from fastapi import Depends, FastAPI
+from sqlalchemy.ext.asyncio import (
+    create_async_engine,
+    async_sessionmaker,
+    AsyncSession,
+)
 
-from auth.adapters.sqlalchemy_db.database import Session
-from auth.application.protocols.database import UoWDatabase
-from auth.core import Settings
+from auth.common.adapters.security.jwt import JWTProvider
+from auth.common.adapters.security.password import PasswordCryptoProvider
+from auth.common.adapters.security.permissions import PermissionBearerProvider
+from auth.common.application.protocols.jwt import TokenProvider
+from auth.common.application.protocols.password import PasswordProvider
+from auth.common.application.protocols.permissions import BearerProvider
+from auth.common.application.protocols.uow import UoW
+from auth.common.presentation.dependencies.depends_stub import Stub
+from auth.core.config import load_database_config, load_jwt_config
+
+DependencyT = TypeVar("DependencyT")
 
 
-def create_redis_connect():
-    """Создание подключение к Redis с pipeline."""
-    return aioredis.from_url(Settings.redis).pipeline()
+def singleton(value: DependencyT) -> Callable[[], DependencyT]:
+    def singleton_factory() -> DependencyT:
+        return value
+
+    return singleton_factory
 
 
 def create_async_session_maker():
-    """Создание асинхронного сеанса SQLAlchemy."""
-    engine = create_async_engine(
-        url=Settings.db_url,
-        echo=False
-    )
+    engine = create_async_engine(load_database_config().db_uri)
     return async_sessionmaker(engine, expire_on_commit=False)
 
 
-def init_dependencies(app: FastAPI) -> None:
-    """Инициализация зависимостей."""
-    app.dependency_overrides[UoWDatabase] = partial(
-        Session,
-        create_async_session_maker()
+def new_uow(
+        session: AsyncSession = Depends(Stub(AsyncSession))
+) -> AsyncSession:
+    return session
+
+
+async def create_async_session(
+        session_maker: async_sessionmaker
+) -> AsyncIterator[AsyncSession]:
+    async with session_maker() as session:
+        yield session
+
+
+def init_dependencies(app: FastAPI):
+    session_maker = create_async_session_maker()
+    jwt_config = load_jwt_config()
+    jwt = JWTProvider(
+        secret_token=jwt_config.secret_token,
+        algorithm=jwt_config.algorithm
     )
-    app.dependency_overrides[AbstractRedis] = create_redis_connect
+    app.dependency_overrides.update(
+        {
+            AsyncSession: partial(create_async_session, session_maker),
+            UoW: new_uow,
+            PasswordProvider: PasswordCryptoProvider,
+            TokenProvider: lambda: jwt,
+            # BearerProvider: PermissionBearerProvider
+        }
+    )
