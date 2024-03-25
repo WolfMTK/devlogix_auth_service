@@ -31,11 +31,11 @@ class TokenService:
     ) -> None:
         if not value and username:
             raise InvalidUsernameException(
-                'A user with this username already exists.'
+                'The data was entered incorrectly.'
             )
         elif not value and email:
             raise InvalidEmailException(
-                'A user with this E-mail already exists.'
+                'The data was entered incorrectly.'
             )
 
     async def create_refresh_token(self, username: str) -> uuid.UUID:
