@@ -42,7 +42,9 @@ async def create_user(
 
     - **username** - required field
 
-     - **email** - required field
+    - **email** - required field
+
+    - **password** - required field
     """
     try:
         user.password = hashed_password(user.password)
@@ -71,7 +73,7 @@ async def read_user_me(
         ioc: UserInteractorFactory = Depends(),
         bearer: BearerProvider = Depends(PermissionBearerProvider)
 ):
-    """About me"""
+    """About me."""
     username = await bearer.get_username()
     try:
         async with ioc.get_user_me() as get_user_me_interactor:
