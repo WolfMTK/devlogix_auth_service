@@ -1,3 +1,5 @@
+import uuid
+
 from auth.token.domain.exceptions.token import InvalidDataException
 from auth.user.domain.exceptions.user import (
     InvalidEmailException,
@@ -35,3 +37,6 @@ class TokenService:
             raise InvalidEmailException(
                 'A user with this E-mail already exists.'
             )
+
+    async def create_refresh_token(self, username: str) -> uuid.UUID:
+        return uuid.uuid5(uuid.uuid4(), username)

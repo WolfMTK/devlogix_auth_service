@@ -11,10 +11,8 @@ from sqlalchemy.ext.asyncio import (
 
 from auth.common.adapters.security.jwt import JWTProvider
 from auth.common.adapters.security.password import PasswordCryptoProvider
-from auth.common.adapters.security.permissions import PermissionBearerProvider
 from auth.common.application.protocols.jwt import TokenProvider
 from auth.common.application.protocols.password import PasswordProvider
-from auth.common.application.protocols.permissions import BearerProvider
 from auth.common.application.protocols.uow import UoW
 from auth.common.presentation.dependencies.depends_stub import Stub
 from auth.core.config import load_database_config, load_jwt_config

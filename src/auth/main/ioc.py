@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager, AbstractAsyncContextManager
 
 from fastapi import Depends
 
+from auth.common.application.protocols.jwt import TokenProvider
 from auth.common.application.protocols.uow import UoW
 from auth.token.adapters.stub_db import StubTokenGateway
 from auth.token.application.create_token import CreateToken
@@ -47,15 +48,18 @@ class TokeIOC(TokenInteractorFactory):
             self,
             uow: UoW = Depends(),
             gateway: StubTokenGateway = Depends(),
+            jwt: TokenProvider = Depends()
     ) -> None:
         self.uow = uow
         self.gateway = gateway
         self.token_service = TokenService()
+        self.jwt = jwt
 
     @asynccontextmanager
     async def create_token(self) -> AsyncIterator[CreateToken]:
         yield CreateToken(
             uow=self.uow,
             token_db_gateway=self.gateway,
-            token_service=self.token_service
+            token_service=self.token_service,
+            jwt=self.jwt
         )
