@@ -7,6 +7,11 @@ class ConfigParseError(ValueError):
 
 
 @dataclass
+class TokenTime:
+    time_access_token: str = os.getenv('TIME_ACCESS_TOKEN', '15')
+
+
+@dataclass
 class DatabaseConfig:
     db_uri: str
 
