@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Callable, Any, Self
 
 
 class Stub:
@@ -16,17 +16,16 @@ class Stub:
 
     """
 
-    def __init__(self, dependency: Callable, **kwargs):
+    def __init__(self, dependency: Callable, **kwargs) -> None:
         self._dependency = dependency
         self._kwargs = kwargs
 
-    def __call__(self):
+    def __call__(self) -> Any:
         raise NotImplementedError
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: Self) -> bool:
         if isinstance(other, Stub):
-            return (
-                    self._dependency == other._dependency
+            return (self._dependency == other._dependency
                     and self._kwargs == other._kwargs
             )
         else:
@@ -34,7 +33,7 @@ class Stub:
                 return self._dependency == other
             return False
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         if not self._kwargs:
             return hash(self._dependency)
         serial = (

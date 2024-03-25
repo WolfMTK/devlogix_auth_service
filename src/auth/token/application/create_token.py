@@ -1,5 +1,4 @@
 import datetime as dt
-import uuid
 from dataclasses import dataclass
 
 from auth.common.application.protocols.interactor import Interactor
@@ -7,15 +6,8 @@ from auth.common.application.protocols.jwt import TokenProvider
 from auth.common.application.protocols.uow import UoW
 from auth.core.config import TokenTime
 from auth.token.adapters.stub_db import StubTokenGateway
+from auth.token.domain.models.token import TokenResultDTO
 from auth.token.domain.services.token import TokenService
-
-
-@dataclass
-class TokenResultDTO:
-    accessToken: str
-    expiresIn: int
-    refreshToken: uuid.UUID
-    tokenType: str
 
 
 @dataclass
@@ -32,7 +24,7 @@ class CreateToken(Interactor[UserDTO, TokenResultDTO]):
             token_db_gateway: StubTokenGateway,
             token_service: TokenService,
             jwt: TokenProvider
-    ):
+    ) -> None:
         self.uow = uow
         self.token_db_gateway = token_db_gateway
         self.token_service = token_service

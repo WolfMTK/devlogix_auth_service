@@ -1,6 +1,6 @@
 from collections.abc import AsyncIterator
 from functools import partial
-from typing import TypeVar, Callable
+from typing import TypeVar
 
 from fastapi import Depends, FastAPI
 from sqlalchemy.ext.asyncio import (
@@ -20,14 +20,7 @@ from auth.core.config import load_database_config, load_jwt_config
 DependencyT = TypeVar("DependencyT")
 
 
-def singleton(value: DependencyT) -> Callable[[], DependencyT]:
-    def singleton_factory() -> DependencyT:
-        return value
-
-    return singleton_factory
-
-
-def create_async_session_maker():
+def create_async_session_maker() -> async_sessionmaker[AsyncSession]:
     engine = create_async_engine(load_database_config().db_uri)
     return async_sessionmaker(engine, expire_on_commit=False)
 

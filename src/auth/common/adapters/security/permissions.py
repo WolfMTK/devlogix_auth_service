@@ -1,3 +1,5 @@
+from typing import Never
+
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jwt import PyJWTError
@@ -14,7 +16,7 @@ class PermissionBearerProvider(BearerProvider):
             self,
             bearer: HTTPAuthorizationCredentials = Depends(bearer_token),
             jwt: TokenProvider = Depends(Stub(TokenProvider)),
-    ):
+    ) -> None:
         self.bearer = bearer
         self.jwt = jwt
 
@@ -27,7 +29,7 @@ class PermissionBearerProvider(BearerProvider):
         except PyJWTError:
             return self._is_unauthorized()
 
-    def _is_unauthorized(self):
+    def _is_unauthorized(self) -> Never:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail='Invalid authentication credentials.',

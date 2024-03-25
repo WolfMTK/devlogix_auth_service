@@ -12,7 +12,7 @@ class CreateUser(Interactor[UserDTO, UserResultDTO]):
             uow: UoW,
             user_db_gateway: StubUserGateway,
             user_service: UserService,
-    ):
+    ) -> None:
         self.uow = uow
         self.user_db_gateway = user_db_gateway
         self.user_service = user_service

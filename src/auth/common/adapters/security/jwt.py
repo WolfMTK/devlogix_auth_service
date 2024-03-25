@@ -6,7 +6,7 @@ from auth.common.application.protocols.jwt import TokenProvider
 
 
 class JWTProvider(TokenProvider):
-    def __init__(self, secret_token: str, algorithm: str):
+    def __init__(self, secret_token: str, algorithm: str) -> None:
         self.secret_token = secret_token
         self.algorithm = algorithm
 
