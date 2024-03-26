@@ -19,3 +19,7 @@ class RedisUoW(Protocol):
     @abstractmethod
     async def get(self, name: RedisT) -> Awaitable:
         raise NotImplementedError
+
+    @abstractmethod
+    async def delete(self, name: RedisT) -> None:
+        raise NotImplementedError
