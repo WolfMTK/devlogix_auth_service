@@ -31,7 +31,7 @@ async def login(
     """
     Get tokens.
 
-    Shemas:
+    Schemas:
 
     1. Username
 
