@@ -10,3 +10,9 @@ class TokenCreated(Protocol):
     @abstractmethod
     async def create_token(self, user: User, token: uuid.UUID) -> Token:
         raise NotImplementedError
+
+
+class TokenDeleted(Protocol):
+    @abstractmethod
+    async def delete_token(self, user_id: uuid.UUID) -> None:
+        raise NotImplementedError
