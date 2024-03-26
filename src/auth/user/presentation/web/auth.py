@@ -4,10 +4,11 @@ from auth.common.adapters.security.permissions import PermissionBearerProvider
 from auth.common.application.protocols.permissions import BearerProvider
 from auth.token.application.create_token import TokenResultDTO, UserDTO
 from auth.token.domain.exceptions.token import InvalidDataException
-from auth.token.openapi.create_tokens import (
+from auth.token.openapi.create_token import (
     BODY_USER_LOGIN_EXAMPLE,
     RESPONSE_LOGIN_EXAMPLE,
 )
+from auth.token.openapi.delete_token import RESPONSE_LOGOUT_EXAMPLE
 from auth.token.presentation.interactor_factory import TokenInteractorFactory
 from auth.user.domain.exceptions.user import (
     InvalidEmailException,
@@ -54,12 +55,18 @@ async def login(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(error)
         )
+    except ValueError as error:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=str(error)
+        )
 
 
 @router.post(
     '/logout',
     name='Delete token',
     status_code=status.HTTP_204_NO_CONTENT,
+    responses=RESPONSE_LOGOUT_EXAMPLE
 )
 async def logout(
         ioc: TokenInteractorFactory = Depends(),
