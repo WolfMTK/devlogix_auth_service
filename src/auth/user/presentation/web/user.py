@@ -6,10 +6,9 @@ from auth.common.adapters.security.permissions import PermissionBearerProvider
 from auth.common.application.protocols.permissions import BearerProvider
 from auth.common.presentation.dependencies.password import get_hashed_password
 from auth.user.application.create_user import UserDTO
-from auth.user.application.get_me import UserMeDTO
 from auth.user.domain.exceptions.user import (
     InvalidEmailException,
-    InvalidUsernameException, EmptyUsernameException, InactiveUserException,
+    InvalidUsernameException,
 )
 from auth.user.domain.models.user import UserResultDTO
 from auth.user.openapi.create_user import (
@@ -74,13 +73,6 @@ async def read_user_me(
         bearer: BearerProvider = Depends(PermissionBearerProvider)
 ):
     """About me."""
-    username = await bearer.get_username()
-    try:
-        async with ioc.get_user_me() as get_user_me_interactor:
-            return await get_user_me_interactor(UserMeDTO(username=username))
-    except (EmptyUsernameException, InactiveUserException) as error:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=str(error),
-            headers={'WWW-Authenticate': 'Bearer'}
-        )
+    user = await bearer.get_username()
+    async with ioc.get_user_me() as get_user_me_interactor:
+        return await get_user_me_interactor(user)
