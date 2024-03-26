@@ -57,4 +57,25 @@ RESPONSE_LOGIN_EXAMPLE = {
             }
         }
     },
+    422: {
+        'description': 'Unprocessable Entity',
+        'content': {
+            'application/json': {
+                'examples': {
+                    'Length Email': {
+                        'value': {
+                            'detail': 'The allowed length for E-mail is '
+                                      'exceeded.'
+                        }
+                    },
+                    'Invalid Email': {
+                        'value': {
+                            'detail': 'The value for the email field is '
+                                      'invalid.'
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
