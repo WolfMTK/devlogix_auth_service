@@ -8,12 +8,17 @@ class ConfigParseError(ValueError):
 
 @dataclass
 class TokenTime:
-    time_access_token: str = os.getenv('TIME_ACCESS_TOKEN', '15')
+    time_access_token: str = os.getenv('TIME_ACCESS_TOKEN', '1')
 
 
 @dataclass
 class DatabaseConfig:
     db_uri: str
+
+
+@dataclass
+class RedisConfig:
+    redis_uri: str
 
 
 @dataclass
@@ -38,3 +43,7 @@ def load_jwt_config() -> JWTConfig:
         secret_token=get_str_env('SECRET_TOKEN'),
         algorithm=get_str_env('ALGORITHM')
     )
+
+
+def load_redis_config() -> RedisConfig:
+    return RedisConfig(redis_uri=get_str_env('REDIS_URL'))
