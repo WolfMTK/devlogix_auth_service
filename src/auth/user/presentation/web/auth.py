@@ -19,7 +19,7 @@ router = APIRouter(prefix='/auth', tags=['auth'])
 
 
 @router.post(
-    '/login',
+    '/login/',
     name='Login',
     response_model=TokenResultDTO,
     responses=RESPONSE_LOGIN_EXAMPLE
@@ -63,7 +63,7 @@ async def login(
 
 
 @router.post(
-    '/logout',
+    '/logout/',
     name='Delete token',
     status_code=status.HTTP_204_NO_CONTENT,
     responses=RESPONSE_LOGOUT_EXAMPLE
