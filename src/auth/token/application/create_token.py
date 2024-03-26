@@ -1,5 +1,4 @@
 import datetime as dt
-from dataclasses import dataclass
 
 from auth.common.application.protocols.interactor import Interactor
 from auth.common.application.protocols.jwt import TokenProvider
@@ -8,14 +7,8 @@ from auth.core.config import TokenTime
 from auth.token.adapters.stub_db import StubTokenGateway
 from auth.token.application.protocols.redis import RedisUoW
 from auth.token.domain.models.token import TokenResultDTO
+from auth.token.domain.models.user import UserDTO
 from auth.token.domain.services.token import TokenService
-
-
-@dataclass
-class UserDTO:
-    password: str
-    username: str | None = None
-    email: str | None = None
 
 
 class CreateToken(Interactor[UserDTO, TokenResultDTO]):
@@ -61,6 +54,7 @@ class CreateToken(Interactor[UserDTO, TokenResultDTO]):
             access_token,
             ex=access_time_token
         )
+        await self.uow.commit()
         return TokenResultDTO(
             accessToken=access_token,
             expiresIn=int(access_time_token.total_seconds()),

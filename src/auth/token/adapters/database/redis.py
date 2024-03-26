@@ -1,4 +1,5 @@
 import datetime as dt
+from typing import Awaitable
 
 from redis.asyncio.client import AbstractRedis, Redis
 
@@ -16,3 +17,9 @@ class RedisClient(RedisUoW):
             ex: None | int | dt.timedelta
     ) -> None:
         await self.redis.set(name, value, ex=ex)
+
+    async def get(self, name: RedisT) -> Awaitable:
+        return await self.redis.get(name)
+
+    async def delete(self, name: RedisT) -> None:
+        await self.redis.delete(name)

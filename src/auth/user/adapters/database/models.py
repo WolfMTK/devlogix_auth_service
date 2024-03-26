@@ -17,7 +17,12 @@ class User(Base):
     email: Mapped[str] = mapped_column(nullable=False, index=True)
     password: Mapped[str] = mapped_column(nullable=False)
     is_active: Mapped[bool] = mapped_column(default=True, nullable=False)
-    token = relationship('Token', back_populates='user', lazy='joined')
+    token = relationship(
+        'Token',
+        back_populates='user',
+        lazy='joined',
+        uselist=False
+    )
 
     @validates('email')
     def validate_email(self, _: str, email: str) -> str:

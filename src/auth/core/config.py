@@ -8,7 +8,7 @@ class ConfigParseError(ValueError):
 
 @dataclass
 class TokenTime:
-    time_access_token: str = os.getenv('TIME_ACCESS_TOKEN', '1')
+    time_access_token: str = os.getenv('TIME_ACCESS_TOKEN', '15')
 
 
 @dataclass

@@ -1,5 +1,8 @@
 import uuid
 
+from email_validator import EmailNotValidError, validate_email
+
+from auth.core.constants import EMAIL_LENGTH
 from auth.token.domain.exceptions.token import InvalidDataException
 from auth.user.domain.exceptions.user import (
     InvalidEmailException,
@@ -22,6 +25,14 @@ class TokenService:
             raise InvalidDataException(
                 'Invalid data received: email or username field is empty.'
             )
+        elif email is not None:
+            # TODO: Temporal check of email length with constant
+            if len(email) > EMAIL_LENGTH:
+                raise ValueError('The allowed length for E-mail is exceeded.')
+            try:
+                validate_email(email, check_deliverability=False)
+            except EmailNotValidError:
+                raise ValueError('The value for the email field is invalid.')
 
     async def check_user(
             self,

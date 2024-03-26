@@ -1,6 +1,6 @@
 import uuid
 
-from sqlalchemy import select, or_, and_
+from sqlalchemy import select, or_, and_, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from auth.token.adapters.database.models import Token
@@ -14,9 +14,9 @@ class TokenGateway(StubTokenGateway):
 
     async def create_token(self, user: User, token: uuid.UUID) -> Token:
         if user.token is None:
-            user.token = Token(name=token)
+            user.token = Token(name=str(token))
         else:
-            user.token.name = token
+            user.token.name = str(token)
         return user.token
 
     async def get_user(self, username: str, email: str) -> User:
@@ -44,3 +44,7 @@ class TokenGateway(StubTokenGateway):
             )
         ).exists()
         return await self.session.scalar(select(stmt))
+
+    async def delete_token(self, user_id: uuid.UUID) -> None:
+        stmt = delete(Token).where(Token.user_id == user_id)
+        await self.session.execute(stmt)
