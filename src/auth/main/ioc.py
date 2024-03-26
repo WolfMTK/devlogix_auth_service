@@ -36,7 +36,7 @@ class UserIOC(UserInteractorFactory):
         )
 
     @asynccontextmanager
-    async def get_user_me(self) -> AbstractAsyncContextManager[GetUserMe]:
+    async def get_user_me(self) -> AsyncIterator[GetUserMe]:
         yield GetUserMe(
             uow=self.uow,
             user_db_gateway=self.gateway,
