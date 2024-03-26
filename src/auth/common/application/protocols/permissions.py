@@ -6,5 +6,5 @@ from auth.user.adapters.database.models import User
 
 class BearerProvider(Protocol):
     @abstractmethod
-    async def get_username(self) -> User:
+    async def get_user(self) -> User:
         raise NotImplementedError
