@@ -73,6 +73,6 @@ async def read_user_me(
         bearer: BearerProvider = Depends(PermissionBearerProvider)
 ):
     """About me."""
-    user = await bearer.get_username()
+    user = await bearer.get_user()
     async with ioc.get_user_me() as get_user_me_interactor:
         return await get_user_me_interactor(user)
