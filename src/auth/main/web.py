@@ -1,17 +1,32 @@
 from fastapi import FastAPI
-from fastapi.exceptions import RequestValidationError
+from fastapi.middleware.cors import CORSMiddleware
 
-from .di import init_dependencies
-from .exception_handler import custom_exception_handler
-from .routers import init_routers
+from auth.core.base import Base  # noqa
+from auth.main.di import init_dependencies
+from auth.main.ioc import UserIOC, TokeIOC
+from auth.token.presentation.interactor_factory import TokenInteractorFactory
+from auth.user.presentation.interactor_factory import UserInteractorFactory
+from auth.user.presentation.web import user, auth
+
+
+def set_middleware(app: FastAPI):
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=['*'],
+        allow_credentials=True,
+        allow_methods=['GET', 'POST', 'PATCH', 'DELETE'],
+        allow_headers=['*']
+    )
 
 
 def create_app() -> FastAPI:
-    app = FastAPI()
+    app = FastAPI(swagger_ui_parameters={"defaultModelsExpandDepth": -1})
+    set_middleware(app)
     init_dependencies(app)
-    app.exception_handler(RequestValidationError)(custom_exception_handler)
-    init_routers(app)
+    app.dependency_overrides.update(
+        {UserInteractorFactory: UserIOC,
+         TokenInteractorFactory: TokeIOC}
+    )
+    app.include_router(user.router)
+    app.include_router(auth.router)
     return app
-
-
-app = create_app()
