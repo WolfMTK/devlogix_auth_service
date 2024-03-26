@@ -33,17 +33,17 @@ async def login(
 
     Shemas:
 
-        1. Username
+    1. Username
 
-            * **username** - required field
+        * **username** - required field
 
-            * **password** - required field
+        * **password** - required field
 
-        2. Email
+    2. Email
 
-            * **email** - required field
+        * **email** - required field
 
-            * **password** - required field
+        * **password** - required field
     """
     try:
         async with ioc.create_token() as create_token_interactor:
