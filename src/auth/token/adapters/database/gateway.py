@@ -14,9 +14,9 @@ class TokenGateway(StubTokenGateway):
 
     async def create_token(self, user: User, token: uuid.UUID) -> Token:
         if user.token is None:
-            user.token = Token(name=token)
+            user.token = Token(name=str(token))
         else:
-            user.token.name = token
+            user.token.name = str(token)
         return user.token
 
     async def get_user(self, username: str, email: str) -> User:
