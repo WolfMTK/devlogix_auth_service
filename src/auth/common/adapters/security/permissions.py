@@ -27,7 +27,7 @@ class PermissionBearerProvider(BearerProvider):
         self.redis = redis
         self.gateway = gateway
 
-    async def get_username(self) -> User:
+    async def get_user(self) -> User:
         try:
             token = await self._get_credentials()
             if (username := self.jwt.decode_token(token).get('sub')) is None:
