@@ -61,6 +61,7 @@ class CreateToken(Interactor[UserDTO, TokenResultDTO]):
             access_token,
             ex=access_time_token
         )
+        await self.uow.commit()
         return TokenResultDTO(
             accessToken=access_token,
             expiresIn=int(access_time_token.total_seconds()),
