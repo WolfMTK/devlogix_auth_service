@@ -7,6 +7,7 @@ from auth.common.application.protocols.jwt import TokenProvider
 from auth.common.application.protocols.uow import UoW
 from auth.token.adapters.stub_db import StubTokenGateway
 from auth.token.application.create_token import CreateToken
+from auth.token.application.delete_token import DeleteToken
 from auth.token.application.protocols.redis import RedisUoW
 from auth.token.domain.services.token import TokenService
 from auth.token.presentation.interactor_factory import TokenInteractorFactory
@@ -61,5 +62,13 @@ class TokeIOC(TokenInteractorFactory):
             token_db_gateway=self.gateway,
             token_service=self.token_service,
             jwt=self.jwt,
+            redis=self.redis
+        )
+
+    @asynccontextmanager
+    async def delete_token(self) -> AsyncIterator[DeleteToken]:
+        yield DeleteToken(
+            uow=self.uow,
+            token_db_gateway=self.gateway,
             redis=self.redis
         )
