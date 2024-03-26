@@ -1,5 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Body
 
+from auth.common.adapters.security.permissions import PermissionBearerProvider
+from auth.common.application.protocols.permissions import BearerProvider
 from auth.token.application.create_token import TokenResultDTO, UserDTO
 from auth.token.domain.exceptions.token import InvalidDataException
 from auth.token.openapi.create_tokens import (
@@ -52,3 +54,18 @@ async def login(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(error)
         )
+
+
+@router.post(
+    '/logout',
+    name='Delete token',
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+async def logout(
+        ioc: TokenInteractorFactory = Depends(),
+        bearer: BearerProvider = Depends(PermissionBearerProvider)
+) -> None:
+    """Delete token."""
+    user = await bearer.get_user()
+    async with ioc.delete_token() as delete_token_interactor:
+        await delete_token_interactor(user.id)
