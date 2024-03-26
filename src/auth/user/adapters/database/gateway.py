@@ -25,4 +25,4 @@ class UserGateway(StubUserGateway):
     async def get_user(self, **filter_by: Any) -> User | None:
         stmt = select(User).filter_by(**filter_by)
         result = await self.session.execute(stmt)
-        return result.scalar_one_or_none()
+        return result.unique().scalar_one_or_none()
