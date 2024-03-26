@@ -19,8 +19,8 @@ class PermissionBearerProvider(BearerProvider):
             self,
             bearer: HTTPAuthorizationCredentials = Depends(bearer_token),
             jwt: TokenProvider = Depends(Stub(TokenProvider)),
-            redis: RedisUoW = Depends(),
-            gateway: StubUserGateway = Depends()
+            redis: RedisUoW = Depends(Stub(RedisUoW)),
+            gateway: StubUserGateway = Depends(Stub(StubUserGateway))
     ) -> None:
         self.bearer = bearer
         self.jwt = jwt
@@ -34,8 +34,13 @@ class PermissionBearerProvider(BearerProvider):
                 return self._is_unauthorized()
             user = await self.gateway.get_user(username=username)
             await self._check_token(f'access-token::{user.id}')
+            await self._check_is_active(user)
             return user
         except PyJWTError:
+            return self._is_unauthorized()
+
+    async def _check_is_active(self, user: User) -> None:
+        if not user.is_active:
             return self._is_unauthorized()
 
     async def _check_token(self, token: str) -> None:
