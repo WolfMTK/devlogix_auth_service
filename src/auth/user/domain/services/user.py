@@ -1,18 +1,12 @@
 from auth.user.adapters.database.models import User
 from auth.user.domain.exceptions.user import (
     InvalidEmailException,
-    InvalidUsernameException, EmptyUsernameException, InactiveUserException,
+    InvalidUsernameException,
+    InactiveUserException,
 )
 
 
 class UserService:
-    def get_user_me(self, user: User | None) -> User:
-        if user is None:
-            raise EmptyUsernameException(
-                'Invalid authentication credentials.'
-            )
-        return user
-
     def check_email_exists(self, value: bool) -> None:
         if value:
             raise InvalidEmailException(
