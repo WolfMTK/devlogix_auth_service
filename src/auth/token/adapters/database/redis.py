@@ -20,3 +20,6 @@ class RedisClient(RedisUoW):
 
     async def get(self, name: RedisT) -> Awaitable:
         return await self.redis.get(name)
+
+    async def delete(self, name: RedisT) -> None:
+        await self.redis.delete(name)
