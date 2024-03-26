@@ -7,6 +7,7 @@ from auth.common.application.protocols.jwt import TokenProvider
 from auth.common.application.protocols.uow import UoW
 from auth.token.adapters.stub_db import StubTokenGateway
 from auth.token.application.create_token import CreateToken
+from auth.token.application.protocols.redis import RedisUoW
 from auth.token.domain.services.token import TokenService
 from auth.token.presentation.interactor_factory import TokenInteractorFactory
 from auth.user.adapters.stub_db import StubUserGateway
@@ -48,12 +49,14 @@ class TokeIOC(TokenInteractorFactory):
             self,
             uow: UoW = Depends(),
             gateway: StubTokenGateway = Depends(),
-            jwt: TokenProvider = Depends()
+            jwt: TokenProvider = Depends(),
+            redis: RedisUoW = Depends()
     ) -> None:
         self.uow = uow
         self.gateway = gateway
         self.token_service = TokenService()
         self.jwt = jwt
+        self.redis = redis
 
     @asynccontextmanager
     async def create_token(self) -> AsyncIterator[CreateToken]:
@@ -61,5 +64,6 @@ class TokeIOC(TokenInteractorFactory):
             uow=self.uow,
             token_db_gateway=self.gateway,
             token_service=self.token_service,
-            jwt=self.jwt
+            jwt=self.jwt,
+            redis=self.redis
         )
