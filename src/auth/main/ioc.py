@@ -37,11 +37,7 @@ class UserIOC(UserInteractorFactory):
 
     @asynccontextmanager
     async def get_user_me(self) -> AsyncIterator[GetUserMe]:
-        yield GetUserMe(
-            uow=self.uow,
-            user_db_gateway=self.gateway,
-            user_service=self.user_service
-        )
+        yield GetUserMe()
 
 
 class TokeIOC(TokenInteractorFactory):
