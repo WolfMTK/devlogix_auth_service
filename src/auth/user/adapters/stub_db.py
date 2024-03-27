@@ -21,3 +21,4 @@ class StubUserGateway(UserCreated, UserCheck, UserReading, UserUpdate):
     @abstractmethod
     async def check_user_email(self, user_id: uuid.UUID, email: str) -> bool:
         raise NotImplementedError
+)
