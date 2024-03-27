@@ -1,6 +1,7 @@
+import uuid
 from typing import Any
 
-from sqlalchemy import select
+from sqlalchemy import select, and_, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from auth.user.adapters.database.models import User
@@ -26,3 +27,26 @@ class UserGateway(StubUserGateway):
         stmt = select(User).filter_by(**filter_by)
         result = await self.session.execute(stmt)
         return result.unique().scalar_one_or_none()
+
+    async def update_user(self, user_id: uuid.UUID, **filter_by: Any) -> User:
+        stmt = update(User).where(User.id == user_id).values(
+            **filter_by
+        ).returning(User)
+        result = await self.session.execute(stmt)
+        return result.scalar()
+
+    async def check_user_username(
+            self,
+            user_id: uuid.UUID,
+            username: str
+    ) -> bool:
+        stmt = select(User).filter(
+            and_(User.id != user_id, User.username == username)
+        ).exists()
+        return await self.session.scalar(select(stmt))
+
+    async def check_user_email(self, user_id: uuid.UUID, email: str) -> bool:
+        stmt = select(User).filter(
+            and_(User.id != user_id, User.email == email)
+        ).exists()
+        return await self.session.scalar(select(stmt))

@@ -4,19 +4,29 @@ from auth.user.domain.models.user_id import UserID
 
 
 @dataclass
-class UserDTO:
+class UserBase:
     username: str
+
+
+@dataclass
+class UserCreate(UserBase):
     email: str
     password: str
 
 
 @dataclass
-class UserMeDTO:
-    username: str
+class UserMe(UserBase):
+    pass
 
 
 @dataclass
-class UserResultDTO:
+class UserResult(UserBase):
     id: UserID
     email: str
-    username: str
+
+
+@dataclass
+class UserUpdate:
+    email: str | None = None
+    username: str | None = None
+    password: str | None = None

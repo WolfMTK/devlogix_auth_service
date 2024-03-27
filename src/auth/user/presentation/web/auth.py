@@ -19,7 +19,7 @@ router = APIRouter(prefix='/auth', tags=['auth'])
 
 
 @router.post(
-    '/login',
+    '/login/',
     name='Login',
     response_model=TokenResultDTO,
     responses=RESPONSE_LOGIN_EXAMPLE
@@ -31,19 +31,19 @@ async def login(
     """
     Get tokens.
 
-    Shemas:
+    Schemas:
 
-        1. Username
+    1. Username
 
-            * **username** - required field
+        * **username** - required field
 
-            * **password** - required field
+        * **password** - required field
 
-        2. Email
+    2. Email
 
-            * **email** - required field
+        * **email** - required field
 
-            * **password** - required field
+        * **password** - required field
     """
     try:
         async with ioc.create_token() as create_token_interactor:
@@ -63,7 +63,7 @@ async def login(
 
 
 @router.post(
-    '/logout',
+    '/logout/',
     name='Delete token',
     status_code=status.HTTP_204_NO_CONTENT,
     responses=RESPONSE_LOGOUT_EXAMPLE
